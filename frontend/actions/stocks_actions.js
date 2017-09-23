@@ -6,8 +6,15 @@ const receiveStock = (stock) => ({
 });
 
 export const newStock = (company) => dispatch => {
-    return(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${company}&outputsize=compact&apikey=JKGVQCLQFEWRADZR`)
+    return(fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${company}&outputsize=compact&apikey=JKGVQCLQFEWRADZR`))
         .then( (resp) => {
-            console.log(resp);
+            if (resp.ok) {
+                return resp.json().then(
+                    (stock) => {
+                        console.log(stock);
+                        dispatch(receiveStock(stock));
+                    }
+                );
+            }
         });
 };

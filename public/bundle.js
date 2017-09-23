@@ -12473,8 +12473,13 @@ var receiveStock = function receiveStock(stock) {
 
 var newStock = exports.newStock = function newStock(company) {
     return function (dispatch) {
-        return ('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + company + '&outputsize=compact&apikey=JKGVQCLQFEWRADZR').then(function (resp) {
-            console.log(resp);
+        return fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + company + '&outputsize=compact&apikey=JKGVQCLQFEWRADZR').then(function (resp) {
+            if (resp.ok) {
+                return resp.json().then(function (stock) {
+                    console.log(stock);
+                    dispatch(receiveStock(stock));
+                });
+            }
         });
     };
 };
@@ -32288,6 +32293,14 @@ var _navbar = __webpack_require__(373);
 
 var _navbar2 = _interopRequireDefault(_navbar);
 
+var _sidebar = __webpack_require__(374);
+
+var _sidebar2 = _interopRequireDefault(_sidebar);
+
+var _stock_graphs = __webpack_require__(375);
+
+var _stock_graphs2 = _interopRequireDefault(_stock_graphs);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -32308,7 +32321,18 @@ var DashBoard = function (_React$Component) {
     _createClass(DashBoard, [{
         key: 'render',
         value: function render() {
-            return _react2.default.createElement(_navbar2.default, null);
+            return _react2.default.createElement(
+                'div',
+                null,
+                _react2.default.createElement(_navbar2.default, {
+                    newStock: this.props.newStock }),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'main_container' },
+                    _react2.default.createElement(_sidebar2.default, null),
+                    _react2.default.createElement(_stock_graphs2.default, null)
+                )
+            );
         }
     }]);
 
@@ -32361,6 +32385,7 @@ var NavBar = function (_React$Component) {
         };
 
         _this.updateInput = _this.updateInput.bind(_this);
+        _this.sendQuery = _this.sendQuery.bind(_this);
         return _this;
     }
 
@@ -32371,14 +32396,17 @@ var NavBar = function (_React$Component) {
 
             return function (e) {
                 _this2.setState(_defineProperty({}, field, e.currentTarget.value));
-                if (e.keyCode == 13) {
-                    console.log(e.keyCode);
+                if (e.keyCode === 13 && field === 'search') {
+                    _this2.sendQuery();
                 }
             };
         }
     }, {
-        key: 'sendSearch',
-        value: function sendSearch(query) {}
+        key: 'sendQuery',
+        value: function sendQuery() {
+            this.props.newStock(this.refs.query.value.toUpperCase());
+            // this.setState({ search: "" });
+        }
     }, {
         key: 'render',
         value: function render() {
@@ -32405,6 +32433,160 @@ var NavBar = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = NavBar;
+
+/***/ }),
+/* 374 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(6);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var SideBar = function (_React$Component) {
+    _inherits(SideBar, _React$Component);
+
+    function SideBar(props) {
+        _classCallCheck(this, SideBar);
+
+        return _possibleConstructorReturn(this, (SideBar.__proto__ || Object.getPrototypeOf(SideBar)).call(this, props));
+    }
+
+    _createClass(SideBar, [{
+        key: "render",
+        value: function render() {
+            return _react2.default.createElement(
+                "div",
+                { className: "side-bar-container" },
+                _react2.default.createElement(
+                    "div",
+                    { className: "side-bar-title" },
+                    "Stock Tickers"
+                ),
+                _react2.default.createElement(
+                    "ul",
+                    { className: "tickers-container" },
+                    _react2.default.createElement(
+                        "li",
+                        { className: "indv-ticker-container" },
+                        _react2.default.createElement(
+                            "div",
+                            { className: "company-name" },
+                            "Ticker 1"
+                        ),
+                        _react2.default.createElement("img", { className: "delete-icon", src: "../icons/delete-icon.png" })
+                    ),
+                    _react2.default.createElement(
+                        "li",
+                        { className: "indv-ticker-container" },
+                        _react2.default.createElement(
+                            "div",
+                            { className: "company-name" },
+                            "Ticker 2"
+                        ),
+                        _react2.default.createElement("img", { className: "delete-icon", src: "../icons/delete-icon.png" })
+                    ),
+                    _react2.default.createElement(
+                        "li",
+                        { className: "indv-ticker-container" },
+                        _react2.default.createElement(
+                            "div",
+                            { className: "company-name" },
+                            "Ticker 3"
+                        ),
+                        _react2.default.createElement("img", { className: "delete-icon", src: "../icons/delete-icon.png" })
+                    ),
+                    _react2.default.createElement(
+                        "li",
+                        { className: "indv-ticker-container" },
+                        _react2.default.createElement(
+                            "div",
+                            { className: "company-name" },
+                            "Ticker 4"
+                        ),
+                        _react2.default.createElement("img", { className: "delete-icon", src: "../icons/delete-icon.png" })
+                    ),
+                    _react2.default.createElement(
+                        "li",
+                        { className: "indv-ticker-container" },
+                        _react2.default.createElement(
+                            "div",
+                            { className: "company-name" },
+                            "Ticker 5"
+                        ),
+                        _react2.default.createElement("img", { className: "delete-icon", src: "../icons/delete-icon.png" })
+                    )
+                )
+            );
+        }
+    }]);
+
+    return SideBar;
+}(_react2.default.Component);
+
+exports.default = SideBar;
+
+/***/ }),
+/* 375 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(6);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var StockGraphs = function (_React$Component) {
+    _inherits(StockGraphs, _React$Component);
+
+    function StockGraphs(props) {
+        _classCallCheck(this, StockGraphs);
+
+        return _possibleConstructorReturn(this, (StockGraphs.__proto__ || Object.getPrototypeOf(StockGraphs)).call(this, props));
+    }
+
+    _createClass(StockGraphs, [{
+        key: "render",
+        value: function render() {
+            return _react2.default.createElement("div", { className: "stock-graphs-container" });
+        }
+    }]);
+
+    return StockGraphs;
+}(_react2.default.Component);
+
+exports.default = StockGraphs;
 
 /***/ })
 /******/ ]);

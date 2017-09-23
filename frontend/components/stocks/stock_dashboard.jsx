@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import NavBar from './navbar';
+import SideBar from './sidebar';
+import StockGraphs from './stock_graphs';
 
 class DashBoard extends React.Component {
     constructor(props) {
@@ -10,7 +12,14 @@ class DashBoard extends React.Component {
 
     render() {
         return (
-            <NavBar/>
+            <div>
+                <NavBar
+                newStock = {this.props.newStock}/>
+                <div className="main_container">
+                    <SideBar/>
+                    <StockGraphs/>
+                </div>
+            </div>
         );
     }
 }

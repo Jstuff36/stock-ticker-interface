@@ -9,6 +9,7 @@ class NavBar extends React.Component {
         };
 
         this.updateInput = this.updateInput.bind(this);
+        this.sendQuery = this.sendQuery.bind(this);
     }
 
     updateInput(field) {
@@ -16,15 +17,16 @@ class NavBar extends React.Component {
             this.setState({
                 [field]: e.currentTarget.value
             });
-            if (e.keyCode == 13) {
-                console.log(e.keyCode);
+            if (e.keyCode === 13 && field === 'search') {
+                this.sendQuery();
             }
         };
     }
-
-    sendSearch(query) {
+    
+    sendQuery() {
+        this.props.newStock(this.refs.query.value.toUpperCase());
+        // this.setState({ search: "" });
     }
-
 
     render() {
         return (
