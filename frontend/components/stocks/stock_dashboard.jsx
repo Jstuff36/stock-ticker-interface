@@ -16,7 +16,8 @@ class DashBoard extends React.Component {
                 <NavBar
                 newStock = {this.props.newStock}/>
                 <div className="main_container">
-                    <SideBar/>
+                    <SideBar
+                    allStocks={this.props.allStocks}/>
                     <StockGraphs/>
                 </div>
             </div>

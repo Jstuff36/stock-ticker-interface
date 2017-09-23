@@ -3,7 +3,7 @@ import merge from 'lodash/merge';
 import { RECEIVE_STOCK } from '../actions/stocks_actions';
 
 const noStocks = Object.freeze({
-    allStocks: []
+    allStocks: {}
 });
 
 const stockReducer = (state = noStocks, action) => {
@@ -11,8 +11,11 @@ const stockReducer = (state = noStocks, action) => {
     let newState;
     switch (action.type) {
         case RECEIVE_STOCK:
-            const stock = action.stock;
-            return merge({}, state, { allStocks: stock });
+            const symbol = action.stock["Meta Data"]['2. Symbol'];
+            return merge({}, state, { allStocks: {
+                [symbol]: action.stock
+                }
+             });
         default:
             return state;
     }

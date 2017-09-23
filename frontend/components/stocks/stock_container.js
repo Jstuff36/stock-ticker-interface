@@ -5,8 +5,11 @@ import {
     newStock
 } from '../../actions/stocks_actions';
 
-const mapStateToProps = ({}) => ({
-});
+const mapStateToProps = ( {stocks} ) => {
+    return {
+        allstock: stocks.allStocks
+    };
+};
 
 const mapDispatchToProps = (dispatch) => ({
     newStock: (company) => dispatch(newStock(company))

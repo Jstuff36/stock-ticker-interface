@@ -5,43 +5,34 @@ class SideBar extends React.Component {
         super(props);
     }
 
+    componentWillReceiveProps(nextProps) {
+        console.log(nextProps);
+    }
+
     render() {
+        const stocks = this.props.allStocks;
         return(
             <div className="side-bar-container">
                 <div className="side-bar-title">
                     Stock Tickers
                 </div>
                 <ul className="tickers-container">
-                    <li className="indv-ticker-container">
-                        <div className="company-name">
-                            Ticker 1
-                        </div>
-                        <img className="delete-icon" src="../icons/delete-icon.png"/>
+                    {this.props.allStocks ? 
+                    Object.keys(stocks).map((tickerStymbol, idx) => (
+                        <li 
+                        key={idx}
+                        className="indv-ticker-container">
+                            <div className="company-name">
+                                {tickerStymbol}
+                            </div>
+                            <img className="delete-icon" src="../icons/delete-icon.png"/>
+                        </li>
+                    ))
+                    :
+                    <li>
+                        No stocks
                     </li>
-                    <li className="indv-ticker-container">
-                        <div className="company-name">
-                            Ticker 2
-                        </div>
-                        <img className="delete-icon" src="../icons/delete-icon.png" />
-                    </li>
-                    <li className="indv-ticker-container">
-                        <div className="company-name">
-                            Ticker 3
-                        </div>
-                        <img className="delete-icon" src="../icons/delete-icon.png" />
-                    </li>
-                    <li className="indv-ticker-container">
-                        <div className="company-name">
-                            Ticker 4
-                        </div>
-                        <img className="delete-icon" src="../icons/delete-icon.png" />
-                    </li>
-                    <li className="indv-ticker-container">
-                        <div className="company-name">
-                            Ticker 5
-                        </div>
-                        <img className="delete-icon" src="../icons/delete-icon.png" />
-                    </li>
+                    }
                 </ul>
             </div>
         );
