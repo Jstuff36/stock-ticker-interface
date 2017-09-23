@@ -2,12 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import NavBar from './navbar';
-import SideBar from './sidebar';
 import StockGraphs from './stock_graphs';
+import SideBarContainer from './side_bar_container';
 
 class DashBoard extends React.Component {
     constructor(props) {
         super(props);
+    }
+
+    componentWillReceiveProps(nextProps) {
     }
 
     render() {
@@ -16,8 +19,7 @@ class DashBoard extends React.Component {
                 <NavBar
                 newStock = {this.props.newStock}/>
                 <div className="main_container">
-                    <SideBar
-                    allStocks={this.props.allStocks}/>
+                    <SideBarContainer/>
                     <StockGraphs/>
                 </div>
             </div>

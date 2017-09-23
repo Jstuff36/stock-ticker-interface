@@ -32256,7 +32256,7 @@ var mapStateToProps = function mapStateToProps(_ref) {
     var stocks = _ref.stocks;
 
     return {
-        allstock: stocks.allStocks
+        allStocks: stocks.allStocks
     };
 };
 
@@ -32295,13 +32295,13 @@ var _navbar = __webpack_require__(373);
 
 var _navbar2 = _interopRequireDefault(_navbar);
 
-var _sidebar = __webpack_require__(374);
-
-var _sidebar2 = _interopRequireDefault(_sidebar);
-
 var _stock_graphs = __webpack_require__(375);
 
 var _stock_graphs2 = _interopRequireDefault(_stock_graphs);
+
+var _side_bar_container = __webpack_require__(377);
+
+var _side_bar_container2 = _interopRequireDefault(_side_bar_container);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32321,6 +32321,9 @@ var DashBoard = function (_React$Component) {
     }
 
     _createClass(DashBoard, [{
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps(nextProps) {}
+    }, {
         key: 'render',
         value: function render() {
             return _react2.default.createElement(
@@ -32331,8 +32334,7 @@ var DashBoard = function (_React$Component) {
                 _react2.default.createElement(
                     'div',
                     { className: 'main_container' },
-                    _react2.default.createElement(_sidebar2.default, {
-                        allStocks: this.props.allStocks }),
+                    _react2.default.createElement(_side_bar_container2.default, null),
                     _react2.default.createElement(_stock_graphs2.default, null)
                 )
             );
@@ -32468,18 +32470,29 @@ var SideBar = function (_React$Component) {
     function SideBar(props) {
         _classCallCheck(this, SideBar);
 
-        return _possibleConstructorReturn(this, (SideBar.__proto__ || Object.getPrototypeOf(SideBar)).call(this, props));
+        var _this = _possibleConstructorReturn(this, (SideBar.__proto__ || Object.getPrototypeOf(SideBar)).call(this, props));
+
+        _this.state = {
+            allStocks: null
+        };
+        return _this;
     }
 
     _createClass(SideBar, [{
         key: "componentWillReceiveProps",
         value: function componentWillReceiveProps(nextProps) {
-            console.log(nextProps);
+            if (nextProps.allStocks !== this.state.allStocks) {
+                console.log(nextProps);
+                this.setState({
+                    allStocks: nextProps.allStocks
+                });
+            }
         }
     }, {
         key: "render",
         value: function render() {
-            var stocks = this.props.allStocks;
+            var stocks = this.state.allStocks;
+            console.log(this.state);
             return _react2.default.createElement(
                 "div",
                 { className: "side-bar-container" },
@@ -32491,7 +32504,7 @@ var SideBar = function (_React$Component) {
                 _react2.default.createElement(
                     "ul",
                     { className: "tickers-container" },
-                    this.props.allStocks ? Object.keys(stocks).map(function (tickerStymbol, idx) {
+                    this.state.allStocks ? Object.keys(stocks).map(function (tickerStymbol, idx) {
                         return _react2.default.createElement(
                             "li",
                             {
@@ -32564,6 +32577,40 @@ var StockGraphs = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = StockGraphs;
+
+/***/ }),
+/* 376 */,
+/* 377 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _reactRedux = __webpack_require__(134);
+
+var _sidebar = __webpack_require__(374);
+
+var _sidebar2 = _interopRequireDefault(_sidebar);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var mapStateToProps = function mapStateToProps(_ref) {
+    var stocks = _ref.stocks;
+
+    return {
+        allStocks: stocks.allStocks
+    };
+};
+
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+    return {};
+};
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_sidebar2.default);
 
 /***/ })
 /******/ ]);

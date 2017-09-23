@@ -3,21 +3,30 @@ import React from 'react';
 class SideBar extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            allStocks: null
+        };
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log(nextProps);
+        if (nextProps.allStocks !== this.state.allStocks) {
+            console.log(nextProps);
+            this.setState({
+               allStocks: nextProps.allStocks 
+            });
+        }
     }
 
     render() {
-        const stocks = this.props.allStocks;
+        const stocks = this.state.allStocks;
+        console.log(this.state);
         return(
             <div className="side-bar-container">
                 <div className="side-bar-title">
                     Stock Tickers
                 </div>
                 <ul className="tickers-container">
-                    {this.props.allStocks ? 
+                    {this.state.allStocks ? 
                     Object.keys(stocks).map((tickerStymbol, idx) => (
                         <li 
                         key={idx}
