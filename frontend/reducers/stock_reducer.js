@@ -18,8 +18,10 @@ const stockReducer = (state = noStocks, action) => {
     switch (action.type) {
         case RECEIVE_STOCK:
             symbol = action.stock["Meta Data"]['2. Symbol'];
-            return merge({}, state, { allStocks: {
-                [symbol]: action.stock
+            return merge({}, state, { 
+                stockToGraph: action.stock,
+                allStocks: {
+                    [symbol]: action.stock
                 }
              });
         case RECEIVE_STOCK_TO_GRAPH:

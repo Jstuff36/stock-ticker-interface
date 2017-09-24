@@ -3,10 +3,10 @@
     flex-direction: column;
     background: #D6D8D8;
     align-items: center;
-    justify-content: space-around;
     min-width: 280px;
     box-shadow: 0 0px 5px #4e4e4e;  
     padding: 40px;
+    z-index: 3;
 }
 
 .tickers-container {
@@ -49,4 +49,5 @@
 
 .no-tickers {
     font-size: 25px;
+    padding: 20px 
 }

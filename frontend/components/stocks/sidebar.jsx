@@ -43,7 +43,7 @@ class SideBar extends React.Component {
                     {!this.state.allStocks || Object.keys(this.state.allStocks).length === 0 ? 
                     <li
                         className="no-tickers">
-                        No stocks
+                        No Tickers
                     </li>
                     :
                     Object.keys(stocks).map((tickerSymbol, idx) => (

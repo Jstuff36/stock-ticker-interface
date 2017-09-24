@@ -1,3 +1,8 @@
-.main_container {
+.main-container {
     display: flex;
+    height: calc(100vh - 80px);
+}
+
+.stock-graphs-container {
+    width: 100%;
 }

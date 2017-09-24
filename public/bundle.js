@@ -12489,7 +12489,7 @@ var removeSingleStock = function removeSingleStock(stock) {
 
 var newStock = exports.newStock = function newStock(company) {
     return function (dispatch) {
-        return fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + company + '&time_period=200&outputsize=compact&apikey=JKGVQCLQFEWRADZR').then(function (resp) {
+        return fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + company + '&outputsize=compact&apikey=JKGVQCLQFEWRADZR').then(function (resp) {
             if (resp.ok) {
                 return resp.json().then(function (stock) {
                     dispatch(receiveStock(stock));
@@ -26414,7 +26414,9 @@ var stockReducer = function stockReducer() {
     switch (action.type) {
         case _stocks_actions.RECEIVE_STOCK:
             symbol = action.stock["Meta Data"]['2. Symbol'];
-            return (0, _merge2.default)({}, state, { allStocks: _defineProperty({}, symbol, action.stock)
+            return (0, _merge2.default)({}, state, {
+                stockToGraph: action.stock,
+                allStocks: _defineProperty({}, symbol, action.stock)
             });
         case _stocks_actions.RECEIVE_STOCK_TO_GRAPH:
             newState = (0, _merge2.default)({}, state);
@@ -32374,7 +32376,7 @@ var DashBoard = function (_React$Component) {
                     newStock: this.props.newStock }),
                 _react2.default.createElement(
                     'div',
-                    { className: 'main_container' },
+                    { className: 'main-container' },
                     _react2.default.createElement(_side_bar_container2.default, null),
                     _react2.default.createElement(_stock_graphs2.default, {
                         stockToGraph: this.props.stockToGraph })
@@ -32572,7 +32574,7 @@ var SideBar = function (_React$Component) {
                         "li",
                         {
                             className: "no-tickers" },
-                        "No stocks"
+                        "No Tickers"
                     ) : Object.keys(stocks).map(function (tickerSymbol, idx) {
                         return _react2.default.createElement(
                             "li",
@@ -32648,11 +32650,9 @@ var StockGraphs = function (_React$Component) {
             var stockToGraph = this.props.stockToGraph;
             var data = [];
             if (stockToGraph) {
-                window.stockToGraph = stockToGraph;
-                Object.keys(stockToGraph["Time Series (Daily)"]).forEach(function (date) {
+                Object.keys(stockToGraph["Time Series (Daily)"]).reverse().forEach(function (date) {
                     data.push([new Date(date).valueOf(), parseFloat(stockToGraph["Time Series (Daily)"][date]['1. open'])]);
                 });
-                console.log(data);
             } else {
                 data.push("");
             }
@@ -32661,10 +32661,10 @@ var StockGraphs = function (_React$Component) {
                     selected: 1
                 },
                 title: {
-                    text: stockToGraph ? stockToGraph["Meta Data"]['2. Symbol'] + ' Stock Price' : ''
+                    text: stockToGraph ? stockToGraph["Meta Data"]['2. Symbol'] + ' Stock Price' : 'Stock Price'
                 },
                 series: [{
-                    name: 'Name goes here',
+                    name: stockToGraph ? '' + stockToGraph["Meta Data"]['2. Symbol'] : '',
                     data: data,
                     tooltip: {
                         valueDecimals: 2

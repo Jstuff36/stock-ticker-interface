@@ -13,11 +13,9 @@ class StockGraphs extends React.Component {
         let stockToGraph = this.props.stockToGraph;
         let data = [];
         if (stockToGraph) {
-            window.stockToGraph = stockToGraph;
-            Object.keys(stockToGraph["Time Series (Daily)"]).forEach((date) => {
+            Object.keys(stockToGraph["Time Series (Daily)"]).reverse().forEach((date) => {
                 data.push([new Date(date).valueOf(), parseFloat(stockToGraph["Time Series (Daily)"][date]['1. open'])]);
             });
-            console.log(data);
         } else {
             data.push("");
         }
@@ -26,10 +24,10 @@ class StockGraphs extends React.Component {
                 selected: 1
             },
             title: {
-                text: stockToGraph ? `${stockToGraph["Meta Data"]['2. Symbol']} Stock Price` : ''
+                text: stockToGraph ? `${stockToGraph["Meta Data"]['2. Symbol']} Stock Price` : 'Stock Price'
             },
             series: [{
-                name: 'Name goes here',
+                name: stockToGraph ? `${stockToGraph["Meta Data"]['2. Symbol']}` : '',
                 data: data,
                 tooltip: {
                     valueDecimals: 2
