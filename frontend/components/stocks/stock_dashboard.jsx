@@ -17,6 +17,8 @@ class DashBoard extends React.Component {
         return (
             <div>
                 <NavBar
+                currentlySearching={this.props.currentlySearching}
+                flipSearch={this.props.flipSearch}
                 newStock = {this.props.newStock}/>
                 <div className="main-container">
                     <SideBarContainer/>

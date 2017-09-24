@@ -19,6 +19,7 @@ class NavBar extends React.Component {
             });
             if (e.keyCode === 13 && field === 'search') {
                 this.sendQuery();
+                this.props.flipSearch();
             }
         };
     }
@@ -38,7 +39,7 @@ class NavBar extends React.Component {
                         ref="query"
                         type="text"
                         className="search-bar edit-placeholder"
-                        placeholder="Search"
+                        placeholder={this.props.currentlySearching ? "Currently Fetching Data" : "Search"}
                         onKeyDown={this.updateInput('search')}
                     />
                 </div>

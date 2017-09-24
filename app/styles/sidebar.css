@@ -13,7 +13,6 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    background: #e8e8e8;
     border-radius: 5px;
     padding: 15px;
 }
@@ -21,7 +20,15 @@
 .indv-ticker-container {
     display: flex;
     justify-content: space-between;
-    padding: 20px 0;
+    margin: 5px 0;
+    border-radius: 10px;
+    padding: 15px;
+    background: #e8e8e8;
+}
+
+.indv-ticker-container:hover {
+    cursor: pointer;    
+    background: #cacaca;
 }
 
 .delete-icon {
@@ -30,24 +37,20 @@
     max-height: 30px;
 }
 
-.delete-icon:hover {
-    cursor: pointer;
-}
-
 .company-name {
     font-size: 25px;
 }
 
-.company-name:hover {
-    cursor: pointer;
-}
-
 .side-bar-title {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     font-size: 30px;
 }
 
 .no-tickers {
     font-size: 25px;
     padding: 20px 
+}
+
+.active {
+    background: white;
 }

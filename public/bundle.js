@@ -12465,6 +12465,7 @@ Object.defineProperty(exports, "__esModule", {
 var RECEIVE_STOCK = exports.RECEIVE_STOCK = 'RECEIVE_STOCK';
 var RECEIVE_STOCK_TO_GRAPH = exports.RECEIVE_STOCK_TO_GRAPH = 'RECEIVE_STOCK_TO_GRAPH';
 var REMOVE_SINGLE_STOCK = exports.REMOVE_SINGLE_STOCK = 'REMOVE_SINGLE_STOCK';
+var CURRENTLY_SEARCHING = exports.CURRENTLY_SEARCHING = 'CURRENTLY_SEARCHING';
 
 var receiveStock = function receiveStock(stock) {
     return {
@@ -12484,6 +12485,12 @@ var removeSingleStock = function removeSingleStock(stock) {
     return {
         type: REMOVE_SINGLE_STOCK,
         stock: stock
+    };
+};
+
+var currentlySearching = function currentlySearching() {
+    return {
+        type: CURRENTLY_SEARCHING
     };
 };
 
@@ -12508,6 +12515,12 @@ var newStockToGraph = exports.newStockToGraph = function newStockToGraph(stock) 
 var deleteStock = exports.deleteStock = function deleteStock(stock) {
     return function (dispatch) {
         return dispatch(removeSingleStock(stock));
+    };
+};
+
+var flipSearch = exports.flipSearch = function flipSearch() {
+    return function (dispatch) {
+        return dispatch(currentlySearching());
     };
 };
 
@@ -26411,7 +26424,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 var noStocks = Object.freeze({
     allStocks: {},
-    stockToGraph: null
+    stockToGraph: null,
+    currentlySearching: false
 });
 
 var stockReducer = function stockReducer() {
@@ -26426,6 +26440,7 @@ var stockReducer = function stockReducer() {
             symbol = action.stock["Meta Data"]['2. Symbol'];
             return (0, _merge2.default)({}, state, {
                 stockToGraph: action.stock,
+                currentlySearching: false,
                 allStocks: _defineProperty({}, symbol, action.stock)
             });
         case _stocks_actions.RECEIVE_STOCK_TO_GRAPH:
@@ -26435,12 +26450,16 @@ var stockReducer = function stockReducer() {
         case _stocks_actions.REMOVE_SINGLE_STOCK:
             newState = (0, _merge2.default)({}, state);
             symbol = action.stock["Meta Data"]['2. Symbol'];
-            if (newState.stockToGraph["Meta Data"]['2. Symbol'] === action.stock["Meta Data"]['2. Symbol']) {
+            if (newState.stockToGraph && newState.stockToGraph["Meta Data"]['2. Symbol'] === symbol) {
                 newState.stockToGraph = null;
             }
             delete newState.allStocks[symbol];
             return newState;
-
+        case _stocks_actions.CURRENTLY_SEARCHING:
+            newState = (0, _merge2.default)({}, state);
+            newState.currentlySearching = true;
+            console.log(newState);
+            return newState;
         default:
             return state;
     }
@@ -32312,7 +32331,8 @@ var mapStateToProps = function mapStateToProps(_ref) {
 
     return {
         allStocks: stocks.allStocks,
-        stockToGraph: stocks.stockToGraph
+        stockToGraph: stocks.stockToGraph,
+        currentlySearching: stocks.currentlySearching
     };
 };
 
@@ -32320,6 +32340,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     return {
         newStock: function newStock(company) {
             return dispatch((0, _stocks_actions.newStock)(company));
+        },
+        flipSearch: function flipSearch() {
+            return dispatch((0, _stocks_actions.flipSearch)());
         }
     };
 };
@@ -32386,6 +32409,8 @@ var DashBoard = function (_React$Component) {
                 'div',
                 null,
                 _react2.default.createElement(_navbar2.default, {
+                    currentlySearching: this.props.currentlySearching,
+                    flipSearch: this.props.flipSearch,
                     newStock: this.props.newStock }),
                 _react2.default.createElement(
                     'div',
@@ -32460,6 +32485,7 @@ var NavBar = function (_React$Component) {
                 _this2.setState(_defineProperty({}, field, e.currentTarget.value));
                 if (e.keyCode === 13 && field === 'search') {
                     _this2.sendQuery();
+                    _this2.props.flipSearch();
                 }
             };
         }
@@ -32483,7 +32509,7 @@ var NavBar = function (_React$Component) {
                         ref: 'query',
                         type: 'text',
                         className: 'search-bar edit-placeholder',
-                        placeholder: 'Search',
+                        placeholder: this.props.currentlySearching ? "Currently Fetching Data" : "Search",
                         onKeyDown: this.updateInput('search')
                     })
                 )
@@ -32553,7 +32579,7 @@ var SideBar = function (_React$Component) {
             var _this2 = this;
 
             return function () {
-                _this2.props.stockToGraph(stock);
+                _this2.props.newStockToGraph(stock);
             };
         }
     }, {
@@ -32561,7 +32587,8 @@ var SideBar = function (_React$Component) {
         value: function removeStock(stock) {
             var _this3 = this;
 
-            return function () {
+            return function (e) {
+                e.stopPropagation();
                 _this3.props.deleteStock(stock);
             };
         }
@@ -32571,7 +32598,7 @@ var SideBar = function (_React$Component) {
             var _this4 = this;
 
             var stocks = this.state.allStocks;
-            // console.log(Object.keys(this.state.allStocks).length === 0 );
+            var stockToGraph = this.props.stockToGraph;
             return _react2.default.createElement(
                 "div",
                 { className: "side-bar-container" },
@@ -32593,11 +32620,11 @@ var SideBar = function (_React$Component) {
                             "li",
                             {
                                 key: idx,
-                                className: "indv-ticker-container" },
+                                onClick: _this4.graphStock(stocks[tickerSymbol]),
+                                className: stockToGraph && tickerSymbol === stockToGraph['Meta Data']['2. Symbol'] ? "indv-ticker-container active" : "indv-ticker-container" },
                             _react2.default.createElement(
                                 "div",
-                                { className: "company-name",
-                                    onClick: _this4.graphStock(stocks[tickerSymbol])
+                                { className: "company-name"
                                 },
                                 tickerSymbol
                             ),
@@ -32681,13 +32708,12 @@ var StockGraphs = function (_React$Component) {
         key: 'getDims',
         value: function getDims() {
             var navBarHeight = document.querySelector('.navbar-container').clientHeight;
-            var height = window.innerHeight - navBarHeight;
+            var height = window.innerHeight - navBarHeight - 20;
             return height;
         }
     }, {
         key: 'configGraph',
         value: function configGraph() {
-            console.log(this.state.height);
             var stockToGraph = this.props.stockToGraph;
             var data = [];
             if (stockToGraph) {
@@ -32761,13 +32787,14 @@ var mapStateToProps = function mapStateToProps(_ref) {
     var stocks = _ref.stocks;
 
     return {
-        allStocks: stocks.allStocks
+        allStocks: stocks.allStocks,
+        stockToGraph: stocks.stockToGraph
     };
 };
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     return {
-        stockToGraph: function stockToGraph(stock) {
+        newStockToGraph: function newStockToGraph(stock) {
             return dispatch((0, _stocks_actions.newStockToGraph)(stock));
         },
         deleteStock: function deleteStock(stock) {

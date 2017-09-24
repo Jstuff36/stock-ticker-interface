@@ -3,12 +3,14 @@ import merge from 'lodash/merge';
 import { 
     RECEIVE_STOCK,
     RECEIVE_STOCK_TO_GRAPH,
-    REMOVE_SINGLE_STOCK
+    REMOVE_SINGLE_STOCK,
+    CURRENTLY_SEARCHING
  } from '../actions/stocks_actions';
 
 const noStocks = Object.freeze({
     allStocks: {},
-    stockToGraph: null
+    stockToGraph: null,
+    currentlySearching: false
 });
 
 const stockReducer = (state = noStocks, action) => {
@@ -20,6 +22,7 @@ const stockReducer = (state = noStocks, action) => {
             symbol = action.stock["Meta Data"]['2. Symbol'];
             return merge({}, state, { 
                 stockToGraph: action.stock,
+                currentlySearching: false,
                 allStocks: {
                     [symbol]: action.stock
                 }
@@ -29,14 +32,18 @@ const stockReducer = (state = noStocks, action) => {
              newState['stockToGraph'] = action.stock;
              return newState;
         case REMOVE_SINGLE_STOCK:
+            newState = merge({}, state);
+            symbol = action.stock["Meta Data"]['2. Symbol'];
+            if (newState.stockToGraph && newState.stockToGraph["Meta Data"]['2. Symbol'] === symbol) {
+                newState.stockToGraph = null;
+            }
+            delete newState.allStocks[symbol];
+            return newState;
+        case CURRENTLY_SEARCHING:
              newState = merge({}, state);
-             symbol = action.stock["Meta Data"]['2. Symbol'];
-             if (newState.stockToGraph["Meta Data"]['2. Symbol'] === action.stock["Meta Data"]['2. Symbol']) {
-                 newState.stockToGraph = null;
-             }
-             delete newState.allStocks[symbol];
+             newState.currentlySearching = true;
+             console.log(newState);
              return newState;
-
         default:
             return state;
     }

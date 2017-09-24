@@ -1,6 +1,7 @@
 export const RECEIVE_STOCK = 'RECEIVE_STOCK';
 export const RECEIVE_STOCK_TO_GRAPH = 'RECEIVE_STOCK_TO_GRAPH';
 export const REMOVE_SINGLE_STOCK = 'REMOVE_SINGLE_STOCK';
+export const CURRENTLY_SEARCHING = 'CURRENTLY_SEARCHING';
 
 const receiveStock = (stock) => ({
     type: RECEIVE_STOCK,
@@ -15,6 +16,10 @@ const receiveStockToGraph = (stock) => ({
 const removeSingleStock = (stock) => ({
     type: REMOVE_SINGLE_STOCK,
     stock
+});
+
+const currentlySearching = () => ({
+    type: CURRENTLY_SEARCHING
 });
 
 
@@ -37,4 +42,8 @@ export const newStockToGraph = (stock) => dispatch => (
 
 export const deleteStock = (stock) => dispatch => (
     dispatch(removeSingleStock(stock))
+);
+
+export const flipSearch = () => dispatch => (
+    dispatch(currentlySearching())
 );

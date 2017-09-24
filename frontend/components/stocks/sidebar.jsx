@@ -21,19 +21,20 @@ class SideBar extends React.Component {
 
     graphStock(stock) {
         return () => {
-            this.props.stockToGraph(stock);
+            this.props.newStockToGraph(stock);
         };
     }
 
     removeStock(stock) {
-        return () => {
+        return (e) => {
+            e.stopPropagation();
             this.props.deleteStock(stock);
         };
     }
 
     render() {
         const stocks = this.state.allStocks;
-        // console.log(Object.keys(this.state.allStocks).length === 0 );
+        const stockToGraph = this.props.stockToGraph;
         return(
             <div className="side-bar-container">
                 <div className="side-bar-title">
@@ -49,9 +50,9 @@ class SideBar extends React.Component {
                     Object.keys(stocks).map((tickerSymbol, idx) => (
                         <li 
                         key={idx}
-                        className="indv-ticker-container">
+                            onClick={this.graphStock(stocks[tickerSymbol])}
+                            className={stockToGraph && tickerSymbol === stockToGraph['Meta Data']['2. Symbol'] ? "indv-ticker-container active" : "indv-ticker-container"}>
                             <div className="company-name"
-                                onClick={this.graphStock(stocks[tickerSymbol])}
                             >
                                 {tickerSymbol}
                             </div>

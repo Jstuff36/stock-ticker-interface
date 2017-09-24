@@ -8,12 +8,13 @@ import {
 
 const mapStateToProps = ({ stocks }) => {
     return {
-        allStocks: stocks.allStocks
+        allStocks: stocks.allStocks,
+        stockToGraph: stocks.stockToGraph
     };
 };
 
 const mapDispatchToProps = (dispatch) => ({
-    stockToGraph: (stock) => dispatch(newStockToGraph(stock)),
+    newStockToGraph: (stock) => dispatch(newStockToGraph(stock)),
     deleteStock: (stock) => dispatch(deleteStock(stock))
 });
 

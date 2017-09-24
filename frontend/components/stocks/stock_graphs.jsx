@@ -29,12 +29,11 @@ class StockGraphs extends React.Component {
 
     getDims() {
         let navBarHeight = document.querySelector('.navbar-container').clientHeight;
-        let height = window.innerHeight - navBarHeight;
+        let height = window.innerHeight - navBarHeight - 20;
         return(height);
     }
 
     configGraph() {
-        console.log(this.state.height);
         let stockToGraph = this.props.stockToGraph;
         let data = [];
         if (stockToGraph) {
