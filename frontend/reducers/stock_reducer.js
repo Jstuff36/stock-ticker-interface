@@ -31,6 +31,9 @@ const stockReducer = (state = noStocks, action) => {
         case REMOVE_SINGLE_STOCK:
              newState = merge({}, state);
              symbol = action.stock["Meta Data"]['2. Symbol'];
+             if (newState.stockToGraph["Meta Data"]['2. Symbol'] === action.stock["Meta Data"]['2. Symbol']) {
+                 newState.stockToGraph = null;
+             }
              delete newState.allStocks[symbol];
              return newState;
 

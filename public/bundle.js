@@ -13633,7 +13633,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //React
 document.addEventListener('DOMContentLoaded', function () {
     var store = void 0;
-    store = (0, _store2.default)();
+    store = _store2.default;
     var root = document.getElementById('root');
     _reactDom2.default.render(_react2.default.createElement(_root2.default, { store: store }), root);
 });
@@ -25747,6 +25747,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _redux = __webpack_require__(69);
 
+var _reduxPersist = __webpack_require__(393);
+
 var _reduxThunk = __webpack_require__(263);
 
 var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
@@ -25763,13 +25765,21 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var middlewares = [_reduxThunk2.default, _reduxLogger2.default];
 
-var configureStore = function configureStore() {
-    var preloadedState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+var store = (0, _redux.compose)(_redux.applyMiddleware.apply(undefined, middlewares), (0, _reduxPersist.autoRehydrate)())(_redux.createStore)(_root_reducer2.default);
 
-    return (0, _redux.createStore)(_root_reducer2.default, preloadedState, _redux.applyMiddleware.apply(undefined, middlewares));
-};
+(0, _reduxPersist.persistStore)(store);
 
-exports.default = configureStore;
+// const configureStore = (preloadedState = {}) => {
+// return store;
+// return createStore(
+//     rootReducer,
+//     preloadedState,
+//     applyMiddleware(...middlewares)
+// );
+// };
+
+
+exports.default = store;
 
 /***/ }),
 /* 249 */
@@ -26425,6 +26435,9 @@ var stockReducer = function stockReducer() {
         case _stocks_actions.REMOVE_SINGLE_STOCK:
             newState = (0, _merge2.default)({}, state);
             symbol = action.stock["Meta Data"]['2. Symbol'];
+            if (newState.stockToGraph["Meta Data"]['2. Symbol'] === action.stock["Meta Data"]['2. Symbol']) {
+                newState.stockToGraph = null;
+            }
             delete newState.allStocks[symbol];
             return newState;
 
@@ -35432,6 +35445,764 @@ b),b}:null;this.userOptions.compare=a;this.chart.hasRendered&&(this.isDirty=!0)}
 this.chart.is3d()||this.chart.polar||!this.xAxis||this.xAxis.isRadial||(!this.clipBox&&this.animate?(this.clipBox=f(this.chart.clipBox),this.clipBox.width=this.xAxis.len,this.clipBox.height=this.yAxis.len):this.chart[this.sharedClipKey]?this.chart[this.sharedClipKey].attr({width:this.xAxis.len,height:this.yAxis.len}):this.clipBox&&(this.clipBox.width=this.xAxis.len,this.clipBox.height=this.yAxis.len));a.call(this)});J(E.prototype,"getSelectedPoints",function(a){var b=a.call(this);g(this.series,function(a){a.hasGroupedData&&
 (b=b.concat(v(a.points||[],function(a){return a.selected})))});return b});J(E.prototype,"update",function(a,b){"scrollbar"in b&&this.navigator&&(f(!0,this.options.scrollbar,b.scrollbar),this.navigator.update({},!1),delete b.scrollbar);return a.apply(this,Array.prototype.slice.call(arguments,1))})})(M);return M});
 
+
+/***/ }),
+/* 382 */,
+/* 383 */,
+/* 384 */,
+/* 385 */,
+/* 386 */,
+/* 387 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return KEY_PREFIX; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return REHYDRATE; });
+var KEY_PREFIX = 'reduxPersist:';
+var REHYDRATE = 'persist/REHYDRATE';
+
+/***/ }),
+/* 388 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony export (immutable) */ __webpack_exports__["a"] = createPersistor;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(387);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__defaults_asyncLocalStorage__ = __webpack_require__(389);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__purgeStoredState__ = __webpack_require__(391);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_json_stringify_safe__ = __webpack_require__(396);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_json_stringify_safe___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_json_stringify_safe__);
+
+
+
+
+
+function createPersistor(store, config) {
+  // defaults
+  var serializer = config.serialize === false ? function (data) {
+    return data;
+  } : defaultSerializer;
+  var deserializer = config.serialize === false ? function (data) {
+    return data;
+  } : defaultDeserializer;
+  var blacklist = config.blacklist || [];
+  var whitelist = config.whitelist || false;
+  var transforms = config.transforms || [];
+  var debounce = config.debounce || false;
+  var keyPrefix = config.keyPrefix !== undefined ? config.keyPrefix : __WEBPACK_IMPORTED_MODULE_0__constants__["a" /* KEY_PREFIX */];
+
+  // pluggable state shape (e.g. immutablejs)
+  var stateInit = config._stateInit || {};
+  var stateIterator = config._stateIterator || defaultStateIterator;
+  var stateGetter = config._stateGetter || defaultStateGetter;
+  var stateSetter = config._stateSetter || defaultStateSetter;
+
+  // storage with keys -> getAllKeys for localForage support
+  var storage = config.storage || Object(__WEBPACK_IMPORTED_MODULE_1__defaults_asyncLocalStorage__["a" /* default */])('local');
+  if (storage.keys && !storage.getAllKeys) {
+    storage.getAllKeys = storage.keys;
+  }
+
+  // initialize stateful values
+  var lastState = stateInit;
+  var paused = false;
+  var storesToProcess = [];
+  var timeIterator = null;
+
+  store.subscribe(function () {
+    if (paused) return;
+
+    var state = store.getState();
+
+    stateIterator(state, function (subState, key) {
+      if (!passWhitelistBlacklist(key)) return;
+      if (stateGetter(lastState, key) === stateGetter(state, key)) return;
+      if (storesToProcess.indexOf(key) !== -1) return;
+      storesToProcess.push(key);
+    });
+
+    var len = storesToProcess.length;
+
+    // time iterator (read: debounce)
+    if (timeIterator === null) {
+      timeIterator = setInterval(function () {
+        if (paused && len === storesToProcess.length || storesToProcess.length === 0) {
+          clearInterval(timeIterator);
+          timeIterator = null;
+          return;
+        }
+
+        var key = storesToProcess.shift();
+        var storageKey = createStorageKey(key);
+        var endState = transforms.reduce(function (subState, transformer) {
+          return transformer.in(subState, key);
+        }, stateGetter(store.getState(), key));
+        if (typeof endState !== 'undefined') storage.setItem(storageKey, serializer(endState), warnIfSetError(key));
+      }, debounce);
+    }
+
+    lastState = state;
+  });
+
+  function passWhitelistBlacklist(key) {
+    if (whitelist && whitelist.indexOf(key) === -1) return false;
+    if (blacklist.indexOf(key) !== -1) return false;
+    return true;
+  }
+
+  function adhocRehydrate(incoming) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    var state = {};
+    if (options.serial) {
+      stateIterator(incoming, function (subState, key) {
+        try {
+          var data = deserializer(subState);
+          var value = transforms.reduceRight(function (interState, transformer) {
+            return transformer.out(interState, key);
+          }, data);
+          state = stateSetter(state, key, value);
+        } catch (err) {
+          if (process.env.NODE_ENV !== 'production') console.warn('Error rehydrating data for key "' + key + '"', subState, err);
+        }
+      });
+    } else state = incoming;
+
+    store.dispatch(rehydrateAction(state));
+    return state;
+  }
+
+  function createStorageKey(key) {
+    return '' + keyPrefix + key;
+  }
+
+  // return `persistor`
+  return {
+    rehydrate: adhocRehydrate,
+    pause: function pause() {
+      paused = true;
+    },
+    resume: function resume() {
+      paused = false;
+    },
+    purge: function purge(keys) {
+      return Object(__WEBPACK_IMPORTED_MODULE_2__purgeStoredState__["a" /* default */])({ storage: storage, keyPrefix: keyPrefix }, keys);
+    }
+  };
+}
+
+function warnIfSetError(key) {
+  return function setError(err) {
+    if (err && process.env.NODE_ENV !== 'production') {
+      console.warn('Error storing data for key:', key, err);
+    }
+  };
+}
+
+function defaultSerializer(data) {
+  return __WEBPACK_IMPORTED_MODULE_3_json_stringify_safe___default()(data, null, null, function (k, v) {
+    if (process.env.NODE_ENV !== 'production') return null;
+    throw new Error('\n      redux-persist: cannot process cyclical state.\n      Consider changing your state structure to have no cycles.\n      Alternatively blacklist the corresponding reducer key.\n      Cycle encounted at key "' + k + '" with value "' + v + '".\n    ');
+  });
+}
+
+function defaultDeserializer(serial) {
+  return JSON.parse(serial);
+}
+
+function rehydrateAction(data) {
+  return {
+    type: __WEBPACK_IMPORTED_MODULE_0__constants__["b" /* REHYDRATE */],
+    payload: data
+  };
+}
+
+function defaultStateIterator(collection, callback) {
+  return Object.keys(collection).forEach(function (key) {
+    return callback(collection[key], key);
+  });
+}
+
+function defaultStateGetter(state, key) {
+  return state[key];
+}
+
+function defaultStateSetter(state, key, value) {
+  state[key] = value;
+  return state;
+}
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
+
+/***/ }),
+/* 389 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_setImmediate__ = __webpack_require__(390);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
+
+var noStorage = function noStorage() {
+  /* noop */return null;
+};
+if (process.env.NODE_ENV !== 'production') {
+  noStorage = function noStorage() {
+    console.error('redux-persist asyncLocalStorage requires a global localStorage object. Either use a different storage backend or if this is a universal redux application you probably should conditionally persist like so: https://gist.github.com/rt2zz/ac9eb396793f95ff3c3b');
+    return null;
+  };
+}
+
+function _hasStorage(storageType) {
+  if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) !== 'object' || !(storageType in window)) {
+    return false;
+  }
+
+  try {
+    var storage = window[storageType];
+    var testKey = 'redux-persist ' + storageType + ' test';
+    storage.setItem(testKey, 'test');
+    storage.getItem(testKey);
+    storage.removeItem(testKey);
+  } catch (e) {
+    if (process.env.NODE_ENV !== 'production') console.warn('redux-persist ' + storageType + ' test failed, persistence will be disabled.');
+    return false;
+  }
+  return true;
+}
+
+function hasLocalStorage() {
+  return _hasStorage('localStorage');
+}
+
+function hasSessionStorage() {
+  return _hasStorage('sessionStorage');
+}
+
+function getStorage(type) {
+  if (type === 'local') {
+    return hasLocalStorage() ? window.localStorage : { getItem: noStorage, setItem: noStorage, removeItem: noStorage, getAllKeys: noStorage };
+  }
+  if (type === 'session') {
+    return hasSessionStorage() ? window.sessionStorage : { getItem: noStorage, setItem: noStorage, removeItem: noStorage, getAllKeys: noStorage };
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (function (type, config) {
+  var storage = getStorage(type);
+  return {
+    getAllKeys: function getAllKeys(cb) {
+      return new Promise(function (resolve, reject) {
+        try {
+          var keys = [];
+          for (var i = 0; i < storage.length; i++) {
+            keys.push(storage.key(i));
+          }
+          Object(__WEBPACK_IMPORTED_MODULE_0__utils_setImmediate__["a" /* default */])(function () {
+            cb && cb(null, keys);
+            resolve(keys);
+          });
+        } catch (e) {
+          cb && cb(e);
+          reject(e);
+        }
+      });
+    },
+    getItem: function getItem(key, cb) {
+      return new Promise(function (resolve, reject) {
+        try {
+          var s = storage.getItem(key);
+          Object(__WEBPACK_IMPORTED_MODULE_0__utils_setImmediate__["a" /* default */])(function () {
+            cb && cb(null, s);
+            resolve(s);
+          });
+        } catch (e) {
+          cb && cb(e);
+          reject(e);
+        }
+      });
+    },
+    setItem: function setItem(key, string, cb) {
+      return new Promise(function (resolve, reject) {
+        try {
+          storage.setItem(key, string);
+          Object(__WEBPACK_IMPORTED_MODULE_0__utils_setImmediate__["a" /* default */])(function () {
+            cb && cb(null);
+            resolve();
+          });
+        } catch (e) {
+          cb && cb(e);
+          reject(e);
+        }
+      });
+    },
+    removeItem: function removeItem(key, cb) {
+      return new Promise(function (resolve, reject) {
+        try {
+          storage.removeItem(key);
+          Object(__WEBPACK_IMPORTED_MODULE_0__utils_setImmediate__["a" /* default */])(function () {
+            cb && cb(null);
+            resolve();
+          });
+        } catch (e) {
+          cb && cb(e);
+          reject(e);
+        }
+      });
+    }
+  };
+});
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
+
+/***/ }),
+/* 390 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {var hasNativeSupport = typeof global !== 'undefined' && typeof global.setImmediate !== 'undefined';
+var setImmediate = hasNativeSupport ? function (fn, ms) {
+  return global.setImmediate(fn, ms);
+} : function (fn, ms) {
+  return setTimeout(fn, ms);
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (setImmediate);
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(41)))
+
+/***/ }),
+/* 391 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony export (immutable) */ __webpack_exports__["a"] = purgeStoredState;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(387);
+
+
+function purgeStoredState(config, keys) {
+  var storage = config.storage;
+  var keyPrefix = config.keyPrefix !== undefined ? config.keyPrefix : __WEBPACK_IMPORTED_MODULE_0__constants__["a" /* KEY_PREFIX */];
+
+  // basic validation
+  if (Array.isArray(config)) throw new Error('redux-persist: purgeStoredState requires config as a first argument (found array). An array of keys is the optional second argument.');
+  if (!storage) throw new Error('redux-persist: config.storage required in purgeStoredState');
+
+  if (typeof keys === 'undefined') {
+    // if keys is not defined, purge all keys
+    return new Promise(function (resolve, reject) {
+      storage.getAllKeys(function (err, allKeys) {
+        if (err) {
+          if (process.env.NODE_ENV !== 'production') console.warn('redux-persist: error during purgeStoredState in storage.getAllKeys');
+          reject(err);
+        } else {
+          resolve(purgeStoredState(config, allKeys.filter(function (key) {
+            return key.indexOf(keyPrefix) === 0;
+          }).map(function (key) {
+            return key.slice(keyPrefix.length);
+          })));
+        }
+      });
+    });
+  } else {
+    // otherwise purge specified keys
+    return Promise.all(keys.map(function (key) {
+      return storage.removeItem('' + keyPrefix + key, warnIfRemoveError(key));
+    }));
+  }
+}
+
+function warnIfRemoveError(key) {
+  return function removeError(err) {
+    if (err && process.env.NODE_ENV !== 'production') {
+      console.warn('Error storing data for key:', key, err);
+    }
+  };
+}
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
+
+/***/ }),
+/* 392 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony export (immutable) */ __webpack_exports__["a"] = getStoredState;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(387);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__defaults_asyncLocalStorage__ = __webpack_require__(389);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+
+
+
+function getStoredState(config, onComplete) {
+  var storage = config.storage || Object(__WEBPACK_IMPORTED_MODULE_1__defaults_asyncLocalStorage__["a" /* default */])('local');
+  var deserializer = config.serialize === false ? function (data) {
+    return data;
+  } : defaultDeserializer;
+  var blacklist = config.blacklist || [];
+  var whitelist = config.whitelist || false;
+  var transforms = config.transforms || [];
+  var keyPrefix = config.keyPrefix !== undefined ? config.keyPrefix : __WEBPACK_IMPORTED_MODULE_0__constants__["a" /* KEY_PREFIX */];
+
+  // fallback getAllKeys to `keys` if present (LocalForage compatability)
+  if (storage.keys && !storage.getAllKeys) storage = _extends({}, storage, { getAllKeys: storage.keys });
+
+  var restoredState = {};
+  var completionCount = 0;
+
+  storage.getAllKeys(function (err, allKeys) {
+    if (err) {
+      if (process.env.NODE_ENV !== 'production') console.warn('redux-persist/getStoredState: Error in storage.getAllKeys');
+      complete(err);
+    }
+
+    var persistKeys = allKeys.filter(function (key) {
+      return key.indexOf(keyPrefix) === 0;
+    }).map(function (key) {
+      return key.slice(keyPrefix.length);
+    });
+    var keysToRestore = persistKeys.filter(passWhitelistBlacklist);
+
+    var restoreCount = keysToRestore.length;
+    if (restoreCount === 0) complete(null, restoredState);
+    keysToRestore.forEach(function (key) {
+      storage.getItem(createStorageKey(key), function (err, serialized) {
+        if (err && process.env.NODE_ENV !== 'production') console.warn('redux-persist/getStoredState: Error restoring data for key:', key, err);else restoredState[key] = rehydrate(key, serialized);
+        completionCount += 1;
+        if (completionCount === restoreCount) complete(null, restoredState);
+      });
+    });
+  });
+
+  function rehydrate(key, serialized) {
+    var state = null;
+
+    try {
+      var data = deserializer(serialized);
+      state = transforms.reduceRight(function (subState, transformer) {
+        return transformer.out(subState, key);
+      }, data);
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') console.warn('redux-persist/getStoredState: Error restoring data for key:', key, err);
+    }
+
+    return state;
+  }
+
+  function complete(err, restoredState) {
+    onComplete(err, restoredState);
+  }
+
+  function passWhitelistBlacklist(key) {
+    if (whitelist && whitelist.indexOf(key) === -1) return false;
+    if (blacklist.indexOf(key) !== -1) return false;
+    return true;
+  }
+
+  function createStorageKey(key) {
+    return '' + keyPrefix + key;
+  }
+
+  if (typeof onComplete !== 'function' && !!Promise) {
+    return new Promise(function (resolve, reject) {
+      onComplete = function onComplete(err, restoredState) {
+        if (err) reject(err);else resolve(restoredState);
+      };
+    });
+  }
+}
+
+function defaultDeserializer(serial) {
+  return JSON.parse(serial);
+}
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
+
+/***/ }),
+/* 393 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "storages", function() { return storages; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__autoRehydrate__ = __webpack_require__(394);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__createPersistor__ = __webpack_require__(388);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__createTransform__ = __webpack_require__(397);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__getStoredState__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__persistStore__ = __webpack_require__(398);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__purgeStoredState__ = __webpack_require__(391);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "autoRehydrate", function() { return __WEBPACK_IMPORTED_MODULE_0__autoRehydrate__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "createPersistor", function() { return __WEBPACK_IMPORTED_MODULE_1__createPersistor__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "createTransform", function() { return __WEBPACK_IMPORTED_MODULE_2__createTransform__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getStoredState", function() { return __WEBPACK_IMPORTED_MODULE_3__getStoredState__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "persistStore", function() { return __WEBPACK_IMPORTED_MODULE_4__persistStore__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "purgeStoredState", function() { return __WEBPACK_IMPORTED_MODULE_5__purgeStoredState__["a"]; });
+
+
+
+
+
+
+
+// @TODO remove in v5
+var deprecated = function deprecated(cb, cb2, cb3) {
+  console.error('redux-persist: this method of importing storages has been removed. instead use `import { asyncLocalStorage } from "redux-persist/storages"`');
+  if (typeof cb === 'function') cb();
+  if (typeof cb2 === 'function') cb2();
+  if (typeof cb3 === 'function') cb3();
+};
+var deprecatedStorage = { getAllKeys: deprecated, getItem: deprecated, setItem: deprecated, removeItem: deprecated };
+var storages = {
+  asyncLocalStorage: deprecatedStorage,
+  asyncSessionStorage: deprecatedStorage
+};
+
+
+
+/***/ }),
+/* 394 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = autoRehydrate;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(387);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_isStatePlainEnough__ = __webpack_require__(395);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+
+
+
+function autoRehydrate() {
+  var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  var stateReconciler = config.stateReconciler || defaultStateReconciler;
+
+  return function (next) {
+    return function (reducer, initialState, enhancer) {
+      var store = next(liftReducer(reducer), initialState, enhancer);
+      return _extends({}, store, {
+        replaceReducer: function replaceReducer(reducer) {
+          return store.replaceReducer(liftReducer(reducer));
+        }
+      });
+    };
+  };
+
+  function liftReducer(reducer) {
+    var rehydrated = false;
+    var preRehydrateActions = [];
+    return function (state, action) {
+      if (action.type !== __WEBPACK_IMPORTED_MODULE_0__constants__["b" /* REHYDRATE */]) {
+        if (config.log && !rehydrated) preRehydrateActions.push(action); // store pre-rehydrate actions for debugging
+        return reducer(state, action);
+      } else {
+        if (config.log && !rehydrated) logPreRehydrate(preRehydrateActions);
+        rehydrated = true;
+
+        var inboundState = action.payload;
+        var reducedState = reducer(state, action);
+
+        return stateReconciler(state, inboundState, reducedState, config.log);
+      }
+    };
+  }
+}
+
+function logPreRehydrate(preRehydrateActions) {
+  var concernedActions = preRehydrateActions.slice(1);
+  if (concernedActions.length > 0) {
+    console.log('\n      redux-persist/autoRehydrate: %d actions were fired before rehydration completed. This can be a symptom of a race\n      condition where the rehydrate action may overwrite the previously affected state. Consider running these actions\n      after rehydration:\n    ', concernedActions.length, concernedActions);
+  }
+}
+
+function defaultStateReconciler(state, inboundState, reducedState, log) {
+  var newState = _extends({}, reducedState);
+
+  Object.keys(inboundState).forEach(function (key) {
+    // if initialState does not have key, skip auto rehydration
+    if (!state.hasOwnProperty(key)) return;
+
+    // if initial state is an object but inbound state is null/undefined, skip
+    if (_typeof(state[key]) === 'object' && !inboundState[key]) {
+      if (log) console.log('redux-persist/autoRehydrate: sub state for key `%s` is falsy but initial state is an object, skipping autoRehydrate.', key);
+      return;
+    }
+
+    // if reducer modifies substate, skip auto rehydration
+    if (state[key] !== reducedState[key]) {
+      if (log) console.log('redux-persist/autoRehydrate: sub state for key `%s` modified, skipping autoRehydrate.', key);
+      newState[key] = reducedState[key];
+      return;
+    }
+
+    // otherwise take the inboundState
+    if (Object(__WEBPACK_IMPORTED_MODULE_1__utils_isStatePlainEnough__["a" /* default */])(inboundState[key]) && Object(__WEBPACK_IMPORTED_MODULE_1__utils_isStatePlainEnough__["a" /* default */])(state[key])) newState[key] = _extends({}, state[key], inboundState[key]); // shallow merge
+    else newState[key] = inboundState[key]; // hard set
+
+    if (log) console.log('redux-persist/autoRehydrate: key `%s`, rehydrated to ', key, newState[key]);
+  });
+  return newState;
+}
+
+/***/ }),
+/* 395 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = isStatePlainEnough;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash_es_isPlainObject__ = __webpack_require__(70);
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+
+
+function isStatePlainEnough(a) {
+  // isPlainObject + duck type not immutable
+  if (!a) return false;
+  if ((typeof a === 'undefined' ? 'undefined' : _typeof(a)) !== 'object') return false;
+  if (typeof a.asMutable === 'function') return false;
+  if (!Object(__WEBPACK_IMPORTED_MODULE_0_lodash_es_isPlainObject__["a" /* default */])(a)) return false;
+  return true;
+}
+
+/***/ }),
+/* 396 */
+/***/ (function(module, exports) {
+
+exports = module.exports = stringify
+exports.getSerialize = serializer
+
+function stringify(obj, replacer, spaces, cycleReplacer) {
+  return JSON.stringify(obj, serializer(replacer, cycleReplacer), spaces)
+}
+
+function serializer(replacer, cycleReplacer) {
+  var stack = [], keys = []
+
+  if (cycleReplacer == null) cycleReplacer = function(key, value) {
+    if (stack[0] === value) return "[Circular ~]"
+    return "[Circular ~." + keys.slice(0, stack.indexOf(value)).join(".") + "]"
+  }
+
+  return function(key, value) {
+    if (stack.length > 0) {
+      var thisPos = stack.indexOf(this)
+      ~thisPos ? stack.splice(thisPos + 1) : stack.push(this)
+      ~thisPos ? keys.splice(thisPos, Infinity, key) : keys.push(key)
+      if (~stack.indexOf(value)) value = cycleReplacer.call(this, key, value)
+    }
+    else stack.push(value)
+
+    return replacer == null ? value : replacer.call(this, key, value)
+  }
+}
+
+
+/***/ }),
+/* 397 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+function createTransform(inbound, outbound) {
+  var config = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  var whitelist = config.whitelist || null;
+  var blacklist = config.blacklist || null;
+
+  function whitelistBlacklistCheck(key) {
+    if (whitelist && whitelist.indexOf(key) === -1) return true;
+    if (blacklist && blacklist.indexOf(key) !== -1) return true;
+    return false;
+  }
+
+  return {
+    in: function _in(state, key) {
+      return !whitelistBlacklistCheck(key) && inbound ? inbound(state, key) : state;
+    },
+    out: function out(state, key) {
+      return !whitelistBlacklistCheck(key) && outbound ? outbound(state, key) : state;
+    }
+  };
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (createTransform);
+
+/***/ }),
+/* 398 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony export (immutable) */ __webpack_exports__["a"] = persistStore;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constants__ = __webpack_require__(387);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__getStoredState__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__createPersistor__ = __webpack_require__(388);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils_setImmediate__ = __webpack_require__(390);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+
+
+
+
+
+function persistStore(store) {
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var onComplete = arguments[2];
+
+  // defaults
+  // @TODO remove shouldRestore
+  var shouldRestore = !config.skipRestore;
+  if (process.env.NODE_ENV !== 'production' && config.skipRestore) console.warn('redux-persist: config.skipRestore has been deprecated. If you want to skip restoration use `createPersistor` instead');
+
+  var purgeKeys = null;
+
+  // create and pause persistor
+  var persistor = Object(__WEBPACK_IMPORTED_MODULE_2__createPersistor__["a" /* default */])(store, config);
+  persistor.pause();
+
+  // restore
+  if (shouldRestore) {
+    Object(__WEBPACK_IMPORTED_MODULE_3__utils_setImmediate__["a" /* default */])(function () {
+      Object(__WEBPACK_IMPORTED_MODULE_1__getStoredState__["a" /* default */])(config, function (err, restoredState) {
+        if (err) {
+          complete(err);
+          return;
+        }
+        // do not persist state for purgeKeys
+        if (purgeKeys) {
+          if (purgeKeys === '*') restoredState = {};else purgeKeys.forEach(function (key) {
+            return delete restoredState[key];
+          });
+        }
+        try {
+          store.dispatch(rehydrateAction(restoredState, err));
+        } finally {
+          complete(err, restoredState);
+        }
+      });
+    });
+  } else Object(__WEBPACK_IMPORTED_MODULE_3__utils_setImmediate__["a" /* default */])(complete);
+
+  function complete(err, restoredState) {
+    persistor.resume();
+    onComplete && onComplete(err, restoredState);
+  }
+
+  return _extends({}, persistor, {
+    purge: function purge(keys) {
+      purgeKeys = keys || '*';
+      return persistor.purge(keys);
+    }
+  });
+}
+
+function rehydrateAction(payload) {
+  var error = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+  return {
+    type: __WEBPACK_IMPORTED_MODULE_0__constants__["b" /* REHYDRATE */],
+    payload: payload,
+    error: error
+  };
+}
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
 
 /***/ })
 /******/ ]);
