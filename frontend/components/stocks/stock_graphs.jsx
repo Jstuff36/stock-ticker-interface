@@ -6,10 +6,35 @@ class StockGraphs extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            height: null
+        };
+
         this.configGraph = this.configGraph.bind(this);
+        this.updateDimensions = this.updateDimensions.bind(this);
+        this.getDims = this.getDims.bind(this);
+    }
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions);
+        this.updateDimensions();
+    }
+
+    updateDimensions() {
+        let height = this.getDims();
+        this.setState({
+            height: height
+        });
+    }
+
+    getDims() {
+        let navBarHeight = document.querySelector('.navbar-container').clientHeight;
+        let height = window.innerHeight - navBarHeight;
+        return(height);
     }
 
     configGraph() {
+        console.log(this.state.height);
         let stockToGraph = this.props.stockToGraph;
         let data = [];
         if (stockToGraph) {
@@ -20,6 +45,9 @@ class StockGraphs extends React.Component {
             data.push("");
         }
         let config = {
+            chart: {
+                height: this.state.height
+            },
             rangeSelector: {
                 selected: 1
             },

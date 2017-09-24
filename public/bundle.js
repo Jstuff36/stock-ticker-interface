@@ -32653,13 +32653,41 @@ var StockGraphs = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (StockGraphs.__proto__ || Object.getPrototypeOf(StockGraphs)).call(this, props));
 
+        _this.state = {
+            height: null
+        };
+
         _this.configGraph = _this.configGraph.bind(_this);
+        _this.updateDimensions = _this.updateDimensions.bind(_this);
+        _this.getDims = _this.getDims.bind(_this);
         return _this;
     }
 
     _createClass(StockGraphs, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            window.addEventListener("resize", this.updateDimensions);
+            this.updateDimensions();
+        }
+    }, {
+        key: 'updateDimensions',
+        value: function updateDimensions() {
+            var height = this.getDims();
+            this.setState({
+                height: height
+            });
+        }
+    }, {
+        key: 'getDims',
+        value: function getDims() {
+            var navBarHeight = document.querySelector('.navbar-container').clientHeight;
+            var height = window.innerHeight - navBarHeight;
+            return height;
+        }
+    }, {
         key: 'configGraph',
         value: function configGraph() {
+            console.log(this.state.height);
             var stockToGraph = this.props.stockToGraph;
             var data = [];
             if (stockToGraph) {
@@ -32670,6 +32698,9 @@ var StockGraphs = function (_React$Component) {
                 data.push("");
             }
             var config = {
+                chart: {
+                    height: this.state.height
+                },
                 rangeSelector: {
                     selected: 1
                 },
