@@ -32603,7 +32603,7 @@ var SideBar = function (_React$Component) {
                             ),
                             _react2.default.createElement("img", {
                                 onClick: _this4.removeStock(stocks[tickerSymbol]),
-                                className: "delete-icon", src: "../icons/delete-icon.png" })
+                                className: "delete-icon", src: "./icons/delete-icon.png" })
                         );
                     })
                 )

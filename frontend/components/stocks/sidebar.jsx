@@ -57,7 +57,7 @@ class SideBar extends React.Component {
                             </div>
                             <img 
                                 onClick={this.removeStock(stocks[tickerSymbol])}
-                                className="delete-icon" src="../icons/delete-icon.png"/>
+                                className="delete-icon" src="./icons/delete-icon.png"/>
                         </li>
                     ))
                     }
