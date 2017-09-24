@@ -7,7 +7,8 @@ import {
 
 const mapStateToProps = ( {stocks} ) => {
     return {
-        allStocks: stocks.allStocks
+        allStocks: stocks.allStocks,
+        stockToGraph: stocks.stockToGraph
     };
 };
 

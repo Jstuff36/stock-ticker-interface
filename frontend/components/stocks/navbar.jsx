@@ -25,7 +25,7 @@ class NavBar extends React.Component {
     
     sendQuery() {
         this.props.newStock(this.refs.query.value.toUpperCase());
-        // this.setState({ search: "" });
+        this.refs.query.value = '';
     }
 
     render() {

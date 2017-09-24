@@ -16,7 +16,6 @@
     background: #e8e8e8;
     border-radius: 5px;
     padding: 15px;
-    /* box-shadow: 0px 0px 20px 0px; */
 }
 
 .indv-ticker-container {
@@ -39,7 +38,15 @@
     font-size: 25px;
 }
 
+.company-name:hover {
+    cursor: pointer;
+}
+
 .side-bar-title {
     margin-bottom: 25px;
     font-size: 30px;
+}
+
+.no-tickers {
+    font-size: 25px;
 }

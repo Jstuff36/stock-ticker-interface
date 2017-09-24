@@ -20,7 +20,8 @@ class DashBoard extends React.Component {
                 newStock = {this.props.newStock}/>
                 <div className="main_container">
                     <SideBarContainer/>
-                    <StockGraphs/>
+                    <StockGraphs
+                    stockToGraph={this.props.stockToGraph}/>
                 </div>
             </div>
         );
