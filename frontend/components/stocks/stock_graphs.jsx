@@ -10,9 +10,9 @@ class StockGraphs extends React.Component {
             height: null
         };
 
-        this.configGraph = this.configGraph.bind(this);
-        this.updateDimensions = this.updateDimensions.bind(this);
-        this.getDims = this.getDims.bind(this);
+        const configGraph = () => this.configGraph;
+        const updateDimensions = () => this.updateDimensions;
+        const getDims = () => this.getDims;
     }
 
     componentDidMount() {

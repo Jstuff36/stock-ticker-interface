@@ -32458,9 +32458,15 @@ var NavBar = function (_React$Component) {
             fullHistory: false
         };
 
-        _this.updateInput = _this.updateInput.bind(_this);
-        _this.fullHistory = _this.fullHistory.bind(_this);
-        _this.sendQuery = _this.sendQuery.bind(_this);
+        var updateInput = function updateInput() {
+            return _this.updateInput;
+        };
+        var fullHistory = function fullHistory() {
+            return _this.fullHistory;
+        };
+        var sendQuery = function sendQuery() {
+            return _this.sendQuery;
+        };
         return _this;
     }
 
@@ -32584,8 +32590,12 @@ var SideBar = function (_React$Component) {
             allStocks: null
         };
 
-        _this.graphStock = _this.graphStock.bind(_this);
-        _this.removeStock = _this.removeStock.bind(_this);
+        var graphStock = function graphStock() {
+            return _this.graphStock;
+        };
+        var removeStock = function removeStock() {
+            return _this.removeStock;
+        };
         return _this;
     }
 
@@ -32716,9 +32726,15 @@ var StockGraphs = function (_React$Component) {
             height: null
         };
 
-        _this.configGraph = _this.configGraph.bind(_this);
-        _this.updateDimensions = _this.updateDimensions.bind(_this);
-        _this.getDims = _this.getDims.bind(_this);
+        var configGraph = function configGraph() {
+            return _this.configGraph;
+        };
+        var updateDimensions = function updateDimensions() {
+            return _this.updateDimensions;
+        };
+        var getDims = function getDims() {
+            return _this.getDims;
+        };
         return _this;
     }
 

@@ -9,9 +9,9 @@ class NavBar extends React.Component {
             fullHistory: false
         };
 
-        this.updateInput = this.updateInput.bind(this);
-        this.fullHistory = this.fullHistory.bind(this);
-        this.sendQuery = this.sendQuery.bind(this);
+        const updateInput = () => this.updateInput;
+        const fullHistory = () => this.fullHistory;
+        const sendQuery = () => this.sendQuery;
     }
 
     updateInput(field) {
