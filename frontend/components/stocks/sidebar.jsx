@@ -53,7 +53,7 @@ class SideBar extends React.Component {
                         No stocks available
                     </li>
                     :
-                    Object.keys(stocks).map((tickerSymbol, idx) => (
+                    Object.keys(stocks).reverse().map((tickerSymbol, idx) => (
                         <li 
                         key={idx}
                             onClick={this.graphStock(stocks[tickerSymbol])}

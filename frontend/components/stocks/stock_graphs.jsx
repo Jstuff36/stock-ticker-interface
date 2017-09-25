@@ -20,6 +20,10 @@ class StockGraphs extends React.Component {
         this.updateDimensions();
     }
 
+    componentWillMount() {
+        window.removeEventListener("resize", this.updateDimensions);
+    }
+
     updateDimensions() {
         let height = this.getDims();
         this.setState({

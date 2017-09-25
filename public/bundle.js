@@ -32647,7 +32647,7 @@ var SideBar = function (_React$Component) {
                         {
                             className: "no-tickers" },
                         "No stocks available"
-                    ) : Object.keys(stocks).map(function (tickerSymbol, idx) {
+                    ) : Object.keys(stocks).reverse().map(function (tickerSymbol, idx) {
                         return _react2.default.createElement(
                             "li",
                             {
@@ -32727,6 +32727,11 @@ var StockGraphs = function (_React$Component) {
         value: function componentDidMount() {
             window.addEventListener("resize", this.updateDimensions);
             this.updateDimensions();
+        }
+    }, {
+        key: 'componentWillMount',
+        value: function componentWillMount() {
+            window.removeEventListener("resize", this.updateDimensions);
         }
     }, {
         key: 'updateDimensions',
