@@ -11,6 +11,12 @@ class SideBar extends React.Component {
         this.removeStock = this.removeStock.bind(this);
     }
 
+    componentDidMount() {
+        if (this.props.allStocks) {
+            this.setState({ allStocks: this.props.allStocks });
+        }
+    }
+
     componentWillReceiveProps(nextProps) {
         if (nextProps.allStocks !== this.state.allStocks) {
             this.setState({

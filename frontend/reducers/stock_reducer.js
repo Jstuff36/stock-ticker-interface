@@ -7,9 +7,11 @@ import {
     CURRENTLY_SEARCHING
  } from '../actions/stocks_actions';
 
+ import { blackRockStock } from './defaultState';
+
 const noStocks = Object.freeze({
-    allStocks: {},
-    stockToGraph: null,
+    allStocks: {"BLK": blackRockStock},
+    stockToGraph: blackRockStock,
     currentlySearching: false
 });
 
@@ -42,7 +44,6 @@ const stockReducer = (state = noStocks, action) => {
         case CURRENTLY_SEARCHING:
              newState = merge({}, state);
              newState.currentlySearching = true;
-             console.log(newState);
              return newState;
         default:
             return state;

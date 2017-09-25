@@ -16,7 +16,6 @@ let store = compose(
 persistStore(store);
 
 // const configureStore = (preloadedState = {}) => {
-    // return store;
     // return createStore(
     //     rootReducer,
     //     preloadedState,

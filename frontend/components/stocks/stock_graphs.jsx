@@ -45,7 +45,10 @@ class StockGraphs extends React.Component {
         }
         let config = {
             chart: {
-                height: this.state.height
+                height: this.state.height,
+                style: {
+                    fontFamily: 'sans-serif'
+                }
             },
             rangeSelector: {
                 selected: 1
@@ -65,8 +68,6 @@ class StockGraphs extends React.Component {
     }
 
     render() {
-        
-
         return (
             <div className="stock-graphs-container">
                 <ReactHighstock 

@@ -32,3 +32,15 @@
 .edit-placeholder:-moz-placeholder {
   color: #b2b2b2;
 }
+
+.title {
+  color: white;
+  font-size: 35px;
+  margin-left: 15px;
+}
+
+.description {
+  color: white;
+  font-size: 20px;
+  font-style: italic;
+}

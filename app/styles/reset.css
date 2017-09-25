@@ -14,12 +14,12 @@ span, article, footer, time, small {
   vertical-align: inherit;
   box-sizing: inherit;
   background: transparent;
-  font-family: 'Source Serif Pro', serif;
+  font-family: 'sans-serif';
 }
 
 ul {
   list-style: none;
-  font-family: 'Source Serif Pro', serif;
+  font-family: 'sans-serif';
 }
 
 img {

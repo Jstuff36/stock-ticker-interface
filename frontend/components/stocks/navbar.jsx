@@ -32,7 +32,11 @@ class NavBar extends React.Component {
     render() {
         return (
             <div className="navbar-container">
-                <div>
+                <div className="title">
+                    Stock Tracker 5000
+                </div>
+                <div className="description">
+                    View the history of your favorite stocks
                 </div>
                 <div>
                     <input
