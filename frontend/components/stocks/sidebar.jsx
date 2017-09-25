@@ -7,8 +7,8 @@ class SideBar extends React.Component {
             allStocks: null
         };
 
-        const graphStock = () => this.graphStock;
-        const removeStock = () => this.removeStock;
+        this.graphStock = this.graphStock.bind(this);
+        this.removeStock = this.removeStock.bind(this);
     }
 
     componentDidMount() {

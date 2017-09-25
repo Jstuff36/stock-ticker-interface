@@ -12499,7 +12499,11 @@ var newStock = exports.newStock = function newStock(queryResults) {
         return fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + queryResults[0] + '&outputsize=' + queryResults[1] + '&apikey=JKGVQCLQFEWRADZR').then(function (resp) {
             if (resp.ok) {
                 return resp.json().then(function (stock) {
-                    dispatch(receiveStock(stock));
+                    if (stock["Error Message"]) {
+                        console.log("Couldn't find that stock");
+                    } else {
+                        dispatch(receiveStock(stock));
+                    }
                 });
             }
         });
@@ -32458,15 +32462,9 @@ var NavBar = function (_React$Component) {
             fullHistory: false
         };
 
-        var updateInput = function updateInput() {
-            return _this.updateInput;
-        };
-        var fullHistory = function fullHistory() {
-            return _this.fullHistory;
-        };
-        var sendQuery = function sendQuery() {
-            return _this.sendQuery;
-        };
+        _this.updateInput = _this.updateInput.bind(_this);
+        _this.fullHistory = _this.fullHistory.bind(_this);
+        _this.sendQuery = _this.sendQuery.bind(_this);
         return _this;
     }
 
@@ -32590,12 +32588,8 @@ var SideBar = function (_React$Component) {
             allStocks: null
         };
 
-        var graphStock = function graphStock() {
-            return _this.graphStock;
-        };
-        var removeStock = function removeStock() {
-            return _this.removeStock;
-        };
+        _this.graphStock = _this.graphStock.bind(_this);
+        _this.removeStock = _this.removeStock.bind(_this);
         return _this;
     }
 
@@ -32726,15 +32720,9 @@ var StockGraphs = function (_React$Component) {
             height: null
         };
 
-        var configGraph = function configGraph() {
-            return _this.configGraph;
-        };
-        var updateDimensions = function updateDimensions() {
-            return _this.updateDimensions;
-        };
-        var getDims = function getDims() {
-            return _this.getDims;
-        };
+        _this.configGraph = _this.configGraph.bind(_this);
+        _this.updateDimensions = _this.updateDimensions.bind(_this);
+        _this.getDims = _this.getDims.bind(_this);
         return _this;
     }
 
@@ -32745,8 +32733,8 @@ var StockGraphs = function (_React$Component) {
             this.updateDimensions();
         }
     }, {
-        key: 'componentWillMount',
-        value: function componentWillMount() {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
             window.removeEventListener("resize", this.updateDimensions);
         }
     }, {
