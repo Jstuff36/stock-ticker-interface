@@ -12494,9 +12494,9 @@ var currentlySearching = function currentlySearching() {
     };
 };
 
-var newStock = exports.newStock = function newStock(company) {
+var newStock = exports.newStock = function newStock(queryResults) {
     return function (dispatch) {
-        return fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + company + '&outputsize=compact&apikey=JKGVQCLQFEWRADZR').then(function (resp) {
+        return fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + queryResults[0] + '&outputsize=' + queryResults[1] + '&apikey=JKGVQCLQFEWRADZR').then(function (resp) {
             if (resp.ok) {
                 return resp.json().then(function (stock) {
                     dispatch(receiveStock(stock));
@@ -25780,15 +25780,6 @@ var store = (0, _redux.compose)(_redux.applyMiddleware.apply(undefined, middlewa
 
 (0, _reduxPersist.persistStore)(store);
 
-// const configureStore = (preloadedState = {}) => {
-// return createStore(
-//     rootReducer,
-//     preloadedState,
-//     applyMiddleware(...middlewares)
-// );
-// };
-
-
 exports.default = store;
 
 /***/ }),
@@ -26421,14 +26412,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var noStocks = Object.freeze({
+var defaultStock = Object.freeze({
     allStocks: { "BLK": _defaultState.blackRockStock },
     stockToGraph: _defaultState.blackRockStock,
     currentlySearching: false
 });
 
 var stockReducer = function stockReducer() {
-    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : noStocks;
+    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultStock;
     var action = arguments[1];
 
     Object.freeze(state);
@@ -32398,9 +32389,6 @@ var DashBoard = function (_React$Component) {
     }
 
     _createClass(DashBoard, [{
-        key: 'componentWillReceiveProps',
-        value: function componentWillReceiveProps(nextProps) {}
-    }, {
         key: 'render',
         value: function render() {
             return _react2.default.createElement(
@@ -32466,10 +32454,12 @@ var NavBar = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (NavBar.__proto__ || Object.getPrototypeOf(NavBar)).call(this, props));
 
         _this.state = {
-            search: ""
+            search: "",
+            fullHistory: false
         };
 
         _this.updateInput = _this.updateInput.bind(_this);
+        _this.fullHistory = _this.fullHistory.bind(_this);
         _this.sendQuery = _this.sendQuery.bind(_this);
         return _this;
     }
@@ -32490,8 +32480,23 @@ var NavBar = function (_React$Component) {
     }, {
         key: 'sendQuery',
         value: function sendQuery() {
-            this.props.newStock(this.refs.query.value.toUpperCase());
+            var numDays = this.state.fullHistory ? "full" : "compact";
+            this.props.newStock([this.refs.query.value.toUpperCase(), numDays]);
             this.refs.query.value = '';
+        }
+    }, {
+        key: 'fullHistory',
+        value: function fullHistory(click) {
+            var _this3 = this;
+
+            return function () {
+                if (click === "100Days") {
+                    console.log('hi');
+                    _this3.setState({ fullHistory: false });
+                } else {
+                    _this3.setState({ fullHistory: true });
+                }
+            };
         }
     }, {
         key: 'render',
@@ -32511,14 +32516,28 @@ var NavBar = function (_React$Component) {
                 ),
                 _react2.default.createElement(
                     'div',
-                    null,
+                    { className: 'query-input-container' },
                     _react2.default.createElement('input', {
                         ref: 'query',
                         type: 'text',
                         className: 'search-bar edit-placeholder',
                         placeholder: this.props.currentlySearching ? "Currently Fetching Data" : "Search by Ticker Symbol",
                         onKeyDown: this.updateInput('search')
-                    })
+                    }),
+                    _react2.default.createElement(
+                        'div',
+                        {
+                            className: this.state.fullHistory ? "short-days" : "short-days num-days",
+                            onClick: this.fullHistory("100Days") },
+                        '100 Days'
+                    ),
+                    _react2.default.createElement(
+                        'div',
+                        {
+                            className: this.state.fullHistory ? "all-days num-days" : "all-days",
+                            onClick: this.fullHistory("allDays") },
+                        'All Days'
+                    )
                 )
             );
         }

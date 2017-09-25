@@ -9,13 +9,13 @@ import {
 
  import { blackRockStock } from './defaultState';
 
-const noStocks = Object.freeze({
+const defaultStock = Object.freeze({
     allStocks: {"BLK": blackRockStock},
     stockToGraph: blackRockStock,
     currentlySearching: false
 });
 
-const stockReducer = (state = noStocks, action) => {
+const stockReducer = (state = defaultStock, action) => {
     Object.freeze(state);
     let newState;
     let symbol;

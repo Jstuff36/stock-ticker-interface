@@ -6,6 +6,10 @@
     align-items: center;
  }
 
+ .query-input-container {
+   display: flex;
+ }
+
  .search-bar {
     height: 30px;
     border-radius: 7px;
@@ -14,6 +18,43 @@
     font-size: 20px;
     padding: 10px 15px 10px 15px;
     background: white;
+ }
+
+ .num-days-container {
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+ }
+
+ .short-days {
+   background: white;
+   border-radius: 7px 0px 0px 7px;
+   padding: 10px;
+   font-size: 20px;
+   display: flex;
+   align-items: center;
+ }
+
+ .short-days:hover {
+   cursor: pointer;
+ } 
+
+ .all-days {
+   background: white;
+   border-radius: 0 7px 7px 0;
+   padding: 10px;
+   font-size: 20px;
+   display: flex;
+   align-items: center;
+   margin-right: 15px;
+ }
+
+ .all-days:hover {
+   cursor: pointer;
+ }
+
+ .num-days {
+   background: #D6D8D8;
  }
  
  .icon {

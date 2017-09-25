@@ -1,12 +1,12 @@
 import React from 'react';
-import TickerContainer from './stocks/stock_container';
+import StockContainer from './stocks/stock_container';
 import {
     Route
 } from 'react-router-dom';
 
 const App = () => (
     <div>
-        <Route exact path="/" component={TickerContainer} />
+        <Route exact path="/" component={StockContainer} />
     </div>
 );
 

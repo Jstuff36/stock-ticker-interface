@@ -10,9 +10,6 @@ class DashBoard extends React.Component {
         super(props);
     }
 
-    componentWillReceiveProps(nextProps) {
-    }
-
     render() {
         return (
             <div>

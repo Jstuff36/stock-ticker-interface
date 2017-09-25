@@ -5,10 +5,12 @@ class NavBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            search: ""
+            search: "",
+            fullHistory: false
         };
 
         this.updateInput = this.updateInput.bind(this);
+        this.fullHistory = this.fullHistory.bind(this);
         this.sendQuery = this.sendQuery.bind(this);
     }
 
@@ -25,8 +27,20 @@ class NavBar extends React.Component {
     }
     
     sendQuery() {
-        this.props.newStock(this.refs.query.value.toUpperCase());
+        let numDays = this.state.fullHistory ? "full" : "compact";
+        this.props.newStock([this.refs.query.value.toUpperCase(), numDays]);
         this.refs.query.value = '';
+    }
+
+    fullHistory(click) {
+       return () => {
+            if (click === "100Days") {
+                console.log('hi');
+                this.setState({ fullHistory: false });
+            } else {
+                this.setState({ fullHistory: true });
+            }
+        };
     }
 
     render() {
@@ -38,7 +52,7 @@ class NavBar extends React.Component {
                 <div className="description">
                     View the history of your favorite stocks
                 </div>
-                <div>
+                <div className="query-input-container">
                     <input
                         ref="query"
                         type="text"
@@ -46,6 +60,16 @@ class NavBar extends React.Component {
                         placeholder={this.props.currentlySearching ? "Currently Fetching Data" : "Search by Ticker Symbol"}
                         onKeyDown={this.updateInput('search')}
                     />
+                    <div 
+                        className={this.state.fullHistory ? "short-days" : "short-days num-days"}
+                        onClick={this.fullHistory("100Days")}>
+                        100 Days
+                    </div>
+                    <div 
+                        className={this.state.fullHistory ? "all-days num-days" : "all-days"}
+                        onClick={this.fullHistory("allDays")}>
+                        All Days
+                    </div>
                 </div>
             </div>
         );

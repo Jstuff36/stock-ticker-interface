@@ -7,22 +7,11 @@ import rootReducer from '../reducers/root_reducer';
 
 const middlewares = [thunk, logger];
 
-
 let store = compose(
     applyMiddleware(...middlewares),
     autoRehydrate()
 )(createStore)(rootReducer);
 
 persistStore(store);
-
-// const configureStore = (preloadedState = {}) => {
-    // return createStore(
-    //     rootReducer,
-    //     preloadedState,
-    //     applyMiddleware(...middlewares)
-    // );
-// };
-
-
 
 export default store;
