@@ -32521,14 +32521,14 @@ var NavBar = function (_React$Component) {
                         {
                             className: this.state.fullHistory ? "short-days" : "short-days num-days",
                             onClick: this.fullHistory("100Days") },
-                        'Fetch 100 Days'
+                        '100 Days'
                     ),
                     _react2.default.createElement(
                         'div',
                         {
                             className: this.state.fullHistory ? "all-days num-days" : "all-days",
                             onClick: this.fullHistory("allDays") },
-                        'Fetch All Days'
+                        'All Days'
                     ),
                     _react2.default.createElement('input', {
                         ref: 'query',
