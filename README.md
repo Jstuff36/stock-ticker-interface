@@ -12,7 +12,7 @@ To run the application on your local machine, first clone the repo
 git clone https://github.com/Jstuff36/stock-ticker-interface.git
 ```
 
-then copy and paste the local [index.html](./index.html) file into your browser. 
+then copy and paste the local path to [index.html](./index.html) file into your browser. 
 
 To edit the code and have your local copy in your browser reflect the changes, run 
 

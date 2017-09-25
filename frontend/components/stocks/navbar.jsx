@@ -52,6 +52,16 @@ class NavBar extends React.Component {
                     View the history of your favorite stocks
                 </div>
                 <div className="query-input-container">
+                    <div 
+                        className={this.state.fullHistory ? "short-days" : "short-days num-days"}
+                        onClick={this.fullHistory("100Days")}>
+                        Fetch 100 Days
+                    </div>
+                    <div 
+                        className={this.state.fullHistory ? "all-days num-days" : "all-days"}
+                        onClick={this.fullHistory("allDays")}>
+                        Fetch All Days
+                    </div>
                     <input
                         ref="query"
                         type="text"
@@ -59,16 +69,6 @@ class NavBar extends React.Component {
                         placeholder={this.props.currentlySearching ? "Currently Fetching Data" : "Search by Ticker Symbol"}
                         onKeyDown={this.updateInput('search')}
                     />
-                    <div 
-                        className={this.state.fullHistory ? "short-days" : "short-days num-days"}
-                        onClick={this.fullHistory("100Days")}>
-                        100 Days
-                    </div>
-                    <div 
-                        className={this.state.fullHistory ? "all-days num-days" : "all-days"}
-                        onClick={this.fullHistory("allDays")}>
-                        All Days
-                    </div>
                 </div>
             </div>
         );

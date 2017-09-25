@@ -12,9 +12,19 @@
 .highcharts-button.highcharts-button-disabled {
 
 }
+/* 
 rect.highcharts-navigator-mask-inside:active, rect.highcharts-navigator-mask-inside:focus {
     cursor: -webkit-grabbing !important;
 }
 rect.highcharts-navigator-mask-inside:hover {
     cursor: -webkit-grab !important;
+} */
+
+
+rect.highcharts-navigator-mask-inside:hover {
+    cursor: -webkit-grab !important;
+}
+
+rect.highcharts-navigator-mask-inside:active, rect.highcharts-navigator-mask-inside:focus {
+    cursor: -webkit-grabbing !important;
 }

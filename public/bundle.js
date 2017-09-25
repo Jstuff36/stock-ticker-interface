@@ -32516,27 +32516,27 @@ var NavBar = function (_React$Component) {
                 _react2.default.createElement(
                     'div',
                     { className: 'query-input-container' },
-                    _react2.default.createElement('input', {
-                        ref: 'query',
-                        type: 'text',
-                        className: 'search-bar edit-placeholder',
-                        placeholder: this.props.currentlySearching ? "Currently Fetching Data" : "Search by Ticker Symbol",
-                        onKeyDown: this.updateInput('search')
-                    }),
                     _react2.default.createElement(
                         'div',
                         {
                             className: this.state.fullHistory ? "short-days" : "short-days num-days",
                             onClick: this.fullHistory("100Days") },
-                        '100 Days'
+                        'Fetch 100 Days'
                     ),
                     _react2.default.createElement(
                         'div',
                         {
                             className: this.state.fullHistory ? "all-days num-days" : "all-days",
                             onClick: this.fullHistory("allDays") },
-                        'All Days'
-                    )
+                        'Fetch All Days'
+                    ),
+                    _react2.default.createElement('input', {
+                        ref: 'query',
+                        type: 'text',
+                        className: 'search-bar edit-placeholder',
+                        placeholder: this.props.currentlySearching ? "Currently Fetching Data" : "Search by Ticker Symbol",
+                        onKeyDown: this.updateInput('search')
+                    })
                 )
             );
         }
