@@ -27,7 +27,7 @@
  }
 
  .short-days {
-   background: white;
+   background: #e8e8e8;
    border-radius: 7px 0px 0px 7px;
    padding: 10px;
    font-size: 20px;
@@ -40,7 +40,7 @@
  } 
 
  .all-days {
-   background: white;
+   background: #e8e8e8;
    border-radius: 0 7px 7px 0;
    padding: 10px;
    font-size: 20px;
@@ -54,7 +54,7 @@
  }
 
  .num-days {
-   background: #D6D8D8;
+   background: white;   
  }
  
  .icon {

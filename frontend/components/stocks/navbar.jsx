@@ -35,7 +35,6 @@ class NavBar extends React.Component {
     fullHistory(click) {
        return () => {
             if (click === "100Days") {
-                console.log('hi');
                 this.setState({ fullHistory: false });
             } else {
                 this.setState({ fullHistory: true });

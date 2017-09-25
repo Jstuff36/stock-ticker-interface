@@ -32491,7 +32491,6 @@ var NavBar = function (_React$Component) {
 
             return function () {
                 if (click === "100Days") {
-                    console.log('hi');
                     _this3.setState({ fullHistory: false });
                 } else {
                     _this3.setState({ fullHistory: true });

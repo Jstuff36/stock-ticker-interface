@@ -7,3 +7,14 @@
     width: 100%;
     padding: 20px;
 }
+
+
+.highcharts-button.highcharts-button-disabled {
+
+}
+rect.highcharts-navigator-mask-inside:active, rect.highcharts-navigator-mask-inside:focus {
+    cursor: -webkit-grabbing !important;
+}
+rect.highcharts-navigator-mask-inside:hover {
+    cursor: -webkit-grab !important;
+}
