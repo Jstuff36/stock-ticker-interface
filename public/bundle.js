@@ -32509,7 +32509,7 @@ var NavBar = function (_React$Component) {
                         ref: 'query',
                         type: 'text',
                         className: 'search-bar edit-placeholder',
-                        placeholder: this.props.currentlySearching ? "Currently Fetching Data" : "Search",
+                        placeholder: this.props.currentlySearching ? "Currently Fetching Data" : "Search by Ticker Symbol",
                         onKeyDown: this.updateInput('search')
                     })
                 )
@@ -32605,7 +32605,7 @@ var SideBar = function (_React$Component) {
                 _react2.default.createElement(
                     "div",
                     { className: "side-bar-title" },
-                    "Stock Tickers"
+                    "Stocks"
                 ),
                 _react2.default.createElement(
                     "ul",
@@ -32614,7 +32614,7 @@ var SideBar = function (_React$Component) {
                         "li",
                         {
                             className: "no-tickers" },
-                        "No Tickers"
+                        "No stocks available"
                     ) : Object.keys(stocks).map(function (tickerSymbol, idx) {
                         return _react2.default.createElement(
                             "li",

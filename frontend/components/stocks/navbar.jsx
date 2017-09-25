@@ -39,7 +39,7 @@ class NavBar extends React.Component {
                         ref="query"
                         type="text"
                         className="search-bar edit-placeholder"
-                        placeholder={this.props.currentlySearching ? "Currently Fetching Data" : "Search"}
+                        placeholder={this.props.currentlySearching ? "Currently Fetching Data" : "Search by Ticker Symbol"}
                         onKeyDown={this.updateInput('search')}
                     />
                 </div>

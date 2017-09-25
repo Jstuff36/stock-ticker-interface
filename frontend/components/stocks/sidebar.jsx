@@ -38,13 +38,13 @@ class SideBar extends React.Component {
         return(
             <div className="side-bar-container">
                 <div className="side-bar-title">
-                    Stock Tickers
+                    Stocks
                 </div>
                 <ul className="tickers-container">
                     {!this.state.allStocks || Object.keys(this.state.allStocks).length === 0 ? 
                     <li
                         className="no-tickers">
-                        No Tickers
+                        No stocks available
                     </li>
                     :
                     Object.keys(stocks).map((tickerSymbol, idx) => (
