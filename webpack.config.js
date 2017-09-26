@@ -28,7 +28,8 @@ module.exports = {
         path: path.resolve(__dirname, 'public'),
         filename: 'bundle.js'
     },
-    plugins: plugins,
+    plugins: 
+    plugins,
     resolve: {
         extensions: ['.js', '.jsx', '*', ".json"]
     },
@@ -44,7 +45,7 @@ module.exports = {
                 exclude: /(node_modules)/,
                 loader: 'babel-loader',
                 query: {
-                    plugins: ["transform-regenerator"],
+                    plugins: ["transform-regenerator", "transform-class-properties"],
                     presets: ['react', 'es2015']
                 }
             }
