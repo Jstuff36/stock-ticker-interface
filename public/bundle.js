@@ -7593,7 +7593,11 @@ var newStock = exports.newStock = function newStock(queryResults) {
         return fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + queryResults[0] + '&outputsize=' + queryResults[1] + '&apikey=JKGVQCLQFEWRADZR').then(function (resp) {
             if (resp.ok) {
                 return resp.json().then(function (stock) {
-                    dispatch(receiveStock(stock));
+                    if (stock["Error Message"]) {
+                        console.log("Couldn't find that stock");
+                    } else {
+                        dispatch(receiveStock(stock));
+                    }
                 });
             }
         });
@@ -33928,51 +33932,40 @@ var NavBar = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (NavBar.__proto__ || Object.getPrototypeOf(NavBar)).call(this, props));
 
+        _this.updateInput = function (field) {
+            return function (e) {
+                _this.setState(_defineProperty({}, field, e.currentTarget.value));
+                if (e.keyCode === 13 && field === 'search') {
+                    _this.sendQuery();
+                    _this.props.flipSearch();
+                }
+            };
+        };
+
+        _this.sendQuery = function () {
+            var numDays = _this.state.fullHistory ? "full" : "compact";
+            _this.props.newStock([_this.refs.query.value.toUpperCase(), numDays]);
+            _this.refs.query.value = '';
+        };
+
+        _this.fullHistory = function (click) {
+            return function () {
+                if (click === "100Days") {
+                    _this.setState({ fullHistory: false });
+                } else {
+                    _this.setState({ fullHistory: true });
+                }
+            };
+        };
+
         _this.state = {
             search: "",
             fullHistory: false
         };
-
-        _this.updateInput = _this.updateInput.bind(_this);
-        _this.fullHistory = _this.fullHistory.bind(_this);
-        _this.sendQuery = _this.sendQuery.bind(_this);
         return _this;
     }
 
     _createClass(NavBar, [{
-        key: 'updateInput',
-        value: function updateInput(field) {
-            var _this2 = this;
-
-            return function (e) {
-                _this2.setState(_defineProperty({}, field, e.currentTarget.value));
-                if (e.keyCode === 13 && field === 'search') {
-                    _this2.sendQuery();
-                    _this2.props.flipSearch();
-                }
-            };
-        }
-    }, {
-        key: 'sendQuery',
-        value: function sendQuery() {
-            var numDays = this.state.fullHistory ? "full" : "compact";
-            this.props.newStock([this.refs.query.value.toUpperCase(), numDays]);
-            this.refs.query.value = '';
-        }
-    }, {
-        key: 'fullHistory',
-        value: function fullHistory(click) {
-            var _this3 = this;
-
-            return function () {
-                if (click === "100Days") {
-                    _this3.setState({ fullHistory: false });
-                } else {
-                    _this3.setState({ fullHistory: true });
-                }
-            };
-        }
-    }, {
         key: 'render',
         value: function render() {
             return _react2.default.createElement(
@@ -34059,46 +34052,21 @@ var StockGraphs = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (StockGraphs.__proto__ || Object.getPrototypeOf(StockGraphs)).call(this, props));
 
-        _this.state = {
-            height: null
-        };
-
-        _this.configGraph = _this.configGraph.bind(_this);
-        _this.updateDimensions = _this.updateDimensions.bind(_this);
-        _this.getDims = _this.getDims.bind(_this);
-        return _this;
-    }
-
-    _createClass(StockGraphs, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            window.addEventListener("resize", this.updateDimensions);
-            this.updateDimensions();
-        }
-    }, {
-        key: 'componentWillMount',
-        value: function componentWillMount() {
-            window.removeEventListener("resize", this.updateDimensions);
-        }
-    }, {
-        key: 'updateDimensions',
-        value: function updateDimensions() {
-            var height = this.getDims();
-            this.setState({
+        _this.updateDimensions = function () {
+            var height = _this.getDims();
+            _this.setState({
                 height: height
             });
-        }
-    }, {
-        key: 'getDims',
-        value: function getDims() {
+        };
+
+        _this.getDims = function () {
             var navBarHeight = document.querySelector('.navbar-container').clientHeight;
             var height = window.innerHeight - navBarHeight - 20;
             return height;
-        }
-    }, {
-        key: 'configGraph',
-        value: function configGraph() {
-            var stockToGraph = this.props.stockToGraph;
+        };
+
+        _this.configGraph = function () {
+            var stockToGraph = _this.props.stockToGraph;
             var data = [];
             if (stockToGraph) {
                 Object.keys(stockToGraph["Time Series (Daily)"]).reverse().forEach(function (date) {
@@ -34109,7 +34077,7 @@ var StockGraphs = function (_React$Component) {
             }
             var config = {
                 chart: {
-                    height: this.state.height,
+                    height: _this.state.height,
                     style: {
                         fontFamily: 'sans-serif'
                     }
@@ -34129,6 +34097,25 @@ var StockGraphs = function (_React$Component) {
                 }]
             };
             return config;
+        };
+
+        _this.state = {
+            height: null
+        };
+
+        return _this;
+    }
+
+    _createClass(StockGraphs, [{
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            window.addEventListener("resize", this.updateDimensions);
+            this.updateDimensions();
+        }
+    }, {
+        key: 'componentWillUnmount',
+        value: function componentWillUnmount() {
+            window.removeEventListener("resize", this.updateDimensions);
         }
     }, {
         key: 'render',
@@ -36920,12 +36907,22 @@ var SideBar = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (SideBar.__proto__ || Object.getPrototypeOf(SideBar)).call(this, props));
 
+        _this.graphStock = function (stock) {
+            return function () {
+                _this.props.newStockToGraph(stock);
+            };
+        };
+
+        _this.removeStock = function (stock) {
+            return function (e) {
+                e.stopPropagation();
+                _this.props.deleteStock(stock);
+            };
+        };
+
         _this.state = {
             allStocks: null
         };
-
-        _this.graphStock = _this.graphStock.bind(_this);
-        _this.removeStock = _this.removeStock.bind(_this);
         return _this;
     }
 
@@ -36946,28 +36943,9 @@ var SideBar = function (_React$Component) {
             }
         }
     }, {
-        key: "graphStock",
-        value: function graphStock(stock) {
-            var _this2 = this;
-
-            return function () {
-                _this2.props.newStockToGraph(stock);
-            };
-        }
-    }, {
-        key: "removeStock",
-        value: function removeStock(stock) {
-            var _this3 = this;
-
-            return function (e) {
-                e.stopPropagation();
-                _this3.props.deleteStock(stock);
-            };
-        }
-    }, {
         key: "render",
         value: function render() {
-            var _this4 = this;
+            var _this2 = this;
 
             var stocks = this.state.allStocks;
             var stockToGraph = this.props.stockToGraph;
@@ -36992,7 +36970,7 @@ var SideBar = function (_React$Component) {
                             "li",
                             {
                                 key: idx,
-                                onClick: _this4.graphStock(stocks[tickerSymbol]),
+                                onClick: _this2.graphStock(stocks[tickerSymbol]),
                                 className: stockToGraph && tickerSymbol === stockToGraph['Meta Data']['2. Symbol'] ? "indv-ticker-container active" : "indv-ticker-container" },
                             _react2.default.createElement(
                                 "div",
@@ -37001,7 +36979,7 @@ var SideBar = function (_React$Component) {
                                 tickerSymbol
                             ),
                             _react2.default.createElement("img", {
-                                onClick: _this4.removeStock(stocks[tickerSymbol]),
+                                onClick: _this2.removeStock(stocks[tickerSymbol]),
                                 className: "delete-icon", src: "./icons/delete-icon.png" })
                         );
                     })

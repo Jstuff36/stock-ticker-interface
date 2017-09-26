@@ -29,7 +29,11 @@ export const newStock = (queryResults) => dispatch => {
         if (resp.ok) {
             return resp.json().then(
                 (stock) => {
-                    dispatch(receiveStock(stock));
+                    if (stock["Error Message"]) {
+                        console.log("Couldn't find that stock");
+                    } else {
+                        dispatch(receiveStock(stock));
+                    }
                 }
             );
         }

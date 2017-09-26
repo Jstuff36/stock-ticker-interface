@@ -6,9 +6,6 @@ class SideBar extends React.Component {
         this.state = {
             allStocks: null
         };
-
-        this.graphStock = this.graphStock.bind(this);
-        this.removeStock = this.removeStock.bind(this);
     }
 
     componentDidMount() {
@@ -25,13 +22,13 @@ class SideBar extends React.Component {
         }
     }
 
-    graphStock(stock) {
+    graphStock = (stock) => {
         return () => {
             this.props.newStockToGraph(stock);
         };
     }
 
-    removeStock(stock) {
+    removeStock = (stock) => {
         return (e) => {
             e.stopPropagation();
             this.props.deleteStock(stock);

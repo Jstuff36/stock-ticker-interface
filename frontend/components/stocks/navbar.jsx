@@ -8,13 +8,9 @@ class NavBar extends React.Component {
             search: "",
             fullHistory: false
         };
-
-        this.updateInput = this.updateInput.bind(this);
-        this.fullHistory = this.fullHistory.bind(this);
-        this.sendQuery = this.sendQuery.bind(this);
     }
 
-    updateInput(field) {
+    updateInput = (field) => {
         return e => {
             this.setState({
                 [field]: e.currentTarget.value
@@ -26,13 +22,13 @@ class NavBar extends React.Component {
         };
     }
     
-    sendQuery() {
+    sendQuery = () => {
         let numDays = this.state.fullHistory ? "full" : "compact";
         this.props.newStock([this.refs.query.value.toUpperCase(), numDays]);
         this.refs.query.value = '';
     }
 
-    fullHistory(click) {
+    fullHistory = (click) => {
        return () => {
             if (click === "100Days") {
                 this.setState({ fullHistory: false });

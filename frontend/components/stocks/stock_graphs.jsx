@@ -10,9 +10,6 @@ class StockGraphs extends React.Component {
             height: null
         };
 
-        this.configGraph = this.configGraph.bind(this);
-        this.updateDimensions = this.updateDimensions.bind(this);
-        this.getDims = this.getDims.bind(this);
     }
 
     componentDidMount() {
@@ -20,24 +17,24 @@ class StockGraphs extends React.Component {
         this.updateDimensions();
     }
 
-    componentWillMount() {
+    componentWillUnmount() {
         window.removeEventListener("resize", this.updateDimensions);
     }
 
-    updateDimensions() {
+    updateDimensions = () => {
         let height = this.getDims();
         this.setState({
             height: height
         });
     }
 
-    getDims() {
+    getDims = () => {
         let navBarHeight = document.querySelector('.navbar-container').clientHeight;
         let height = window.innerHeight - navBarHeight - 20;
         return(height);
     }
 
-    configGraph() {
+    configGraph = () => {
         let stockToGraph = this.props.stockToGraph;
         let data = [];
         if (stockToGraph) {
