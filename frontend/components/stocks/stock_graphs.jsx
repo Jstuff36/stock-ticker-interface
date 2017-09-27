@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactHighstock from 'react-highcharts/ReactHighstock.src';
- 
+require('highcharts-no-data-to-display')(ReactHighstock.Highcharts)
+
 
 class StockGraphs extends React.Component {
     constructor(props) {
@@ -49,6 +50,18 @@ class StockGraphs extends React.Component {
                 height: this.state.height,
                 style: {
                     fontFamily: 'sans-serif'
+                }
+            },
+            lang: {
+                noData: `Select a stock from the side bar or type a ticker in the search bar.`,
+            },
+            noData: {
+                position: {
+                    "align": "center",
+                    "verticalAlign": "middle",
+                },
+                style: {
+                    fontSize: '18px'
                 }
             },
             rangeSelector: {

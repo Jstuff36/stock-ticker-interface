@@ -34044,6 +34044,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+__webpack_require__(392)(_ReactHighstock2.default.Highcharts);
+
 var StockGraphs = function (_React$Component) {
     _inherits(StockGraphs, _React$Component);
 
@@ -34080,6 +34082,18 @@ var StockGraphs = function (_React$Component) {
                     height: _this.state.height,
                     style: {
                         fontFamily: 'sans-serif'
+                    }
+                },
+                lang: {
+                    noData: 'Select a stock from the side bar or type a ticker in the search bar.'
+                },
+                noData: {
+                    position: {
+                        "align": "center",
+                        "verticalAlign": "middle"
+                    },
+                    style: {
+                        fontSize: '18px'
                     }
                 },
                 rangeSelector: {
@@ -36992,6 +37006,24 @@ var SideBar = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = SideBar;
+
+/***/ }),
+/* 392 */
+/***/ (function(module, exports) {
+
+/*
+ Highcharts JS v4.2.3 (2016-02-08)
+ Plugin for displaying a message when there is no data visible in chart.
+
+ (c) 2010-2016 Highsoft AS
+ Author: Oystein Moseng
+
+ License: www.highcharts.com/license
+*/
+(function(a){typeof module==="object"&&module.exports?module.exports=a:a(Highcharts)})(function(a){function h(){return!!this.points.length}function d(){this.hasData()?this.hideNoData():this.showNoData()}var e=a.seriesTypes,c=a.Chart.prototype,f=a.getOptions(),g=a.extend,i=a.each;g(f.lang,{noData:"No data to display"});f.noData={position:{x:0,y:0,align:"center",verticalAlign:"middle"},attr:{},style:{fontWeight:"bold",fontSize:"12px",color:"#60606a"}};i(["pie","gauge","waterfall","bubble"],function(b){if(e[b])e[b].prototype.hasData=
+h});a.Series.prototype.hasData=function(){return this.visible&&this.dataMax!==void 0&&this.dataMin!==void 0};c.showNoData=function(b){var a=this.options,b=b||a.lang.noData,a=a.noData;if(!this.noDataLabel)this.noDataLabel=this.renderer.label(b,0,0,null,null,null,a.useHTML,null,"no-data").attr(a.attr).css(a.style).add(),this.noDataLabel.align(g(this.noDataLabel.getBBox(),a.position),!1,"plotBox")};c.hideNoData=function(){if(this.noDataLabel)this.noDataLabel=this.noDataLabel.destroy()};c.hasData=function(){for(var a=
+this.series,c=a.length;c--;)if(a[c].hasData()&&!a[c].options.isInternal)return!0;return!1};c.callbacks.push(function(b){a.addEvent(b,"load",d);a.addEvent(b,"redraw",d)})});
+
 
 /***/ })
 /******/ ]);
