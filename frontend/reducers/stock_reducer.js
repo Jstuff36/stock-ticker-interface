@@ -22,8 +22,7 @@ const stockReducer = (state = defaultStock, action) => {
     switch (action.type) {
         case RECEIVE_STOCK:
             symbol = action.stock["Meta Data"]['2. Symbol'];
-            return merge({}, state, { 
-                stockToGraph: action.stock,
+            return merge({}, state, {
                 currentlySearching: false,
                 allStocks: {
                     [symbol]: action.stock

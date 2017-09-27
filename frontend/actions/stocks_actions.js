@@ -32,6 +32,7 @@ export const newStock = (queryResults) => dispatch => {
                     if (stock["Error Message"]) {
                         console.log("Couldn't find that stock");
                     } else {
+                        dispatch(receiveStockToGraph(stock));
                         dispatch(receiveStock(stock));
                     }
                 }

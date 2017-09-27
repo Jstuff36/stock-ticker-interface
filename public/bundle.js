@@ -7596,6 +7596,7 @@ var newStock = exports.newStock = function newStock(queryResults) {
                     if (stock["Error Message"]) {
                         console.log("Couldn't find that stock");
                     } else {
+                        dispatch(receiveStockToGraph(stock));
                         dispatch(receiveStock(stock));
                     }
                 });
@@ -27186,7 +27187,6 @@ var stockReducer = function stockReducer() {
         case _stocks_actions.RECEIVE_STOCK:
             symbol = action.stock["Meta Data"]['2. Symbol'];
             return (0, _merge2.default)({}, state, {
-                stockToGraph: action.stock,
                 currentlySearching: false,
                 allStocks: _defineProperty({}, symbol, action.stock)
             });
